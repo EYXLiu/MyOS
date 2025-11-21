@@ -1,12 +1,14 @@
 TARGET = boot.bin
 
 AS = nasm
+CC = gcc
 BUILD_DIR = build
 SRC_DIR = src
+TOOLS_DIR = tools
 
-.PHONY: all floppy kernel bootloader run mdir clean always 
+.PHONY: all floppy kernel bootloader run mdir clean always tools_fat
 
-all: floppy
+all: floppy tools_fat
 
 #
 # floppy image
@@ -16,6 +18,7 @@ $(BUILD_DIR)/floppy.img: $(BUILD_DIR)/boot.bin $(BUILD_DIR)/kernel.bin | $(BUILD
 	mformat -C -v "NBOS" -f 1440 -i $(BUILD_DIR)/floppy.img
 	dd if=$(BUILD_DIR)/boot.bin of=$(BUILD_DIR)/floppy.img conv=notrunc
 	mcopy -i $(BUILD_DIR)/floppy.img $(BUILD_DIR)/kernel.bin "::kernel.bin"
+	mcopy -i $(BUILD_DIR)/floppy.img text.txt "::text.txt"
 
 #
 # bootloader
@@ -36,6 +39,14 @@ $(BUILD_DIR)/kernel.bin: | $(BUILD_DIR)
 #
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
+
+#
+# tools
+#
+tools_fat: $(BUILD_DIR)/tools/fat
+$(BUILD_DIR)/tools/fat: $(TOOLS_DIR)/fat/fat.c
+	mkdir -p $(BUILD_DIR)/tools
+	$(CC) -g -o $(BUILD_DIR)/tools/fat $(TOOLS_DIR)/fat/fat.c
 
 #
 # confirm

@@ -34,8 +34,174 @@ ebr_system_id: db 'FAT12   ' ; 8 bytes
 
 
 _start:
-    jmp main
+    ; setup data segments 
+    mov ax, 0
+    mov ds, ax
+    mov es, ax
 
+    ; setup stack segments 
+    mov ss, ax
+    mov sp, 0x7C00
+
+    ; make sure BIOS starts in the proper location
+    push es
+    push word .after
+    retf
+.after:
+
+    ; code 
+    mov [ebr_driver_number], dl
+
+    ; loading message
+    mov si, msg_loading
+    call prints
+
+    ; read drive parameters instead of relying on data
+    push es
+    mov ah, 0x08
+    int 0x13
+    jc floppy_error
+    pop es
+
+    and cl, 0x3F
+    xor ch, ch
+    mov [bdb_sectors_pt], cx
+
+    inc dh
+    mov [bdb_heads], dh
+
+    ; read FAT root directory
+    mov ax, [bdb_sectors_pf]
+    mov bl, [bdb_fat_count]
+    xor bh, bh
+    mul bx
+    add ax, [bdb_reserved]
+    push ax
+
+    mov ax, [bdb_sectors_pf]
+    shl ax, 5
+    xor dx, dx
+    div word [bdb_bytes_ps]
+
+    test dx, dx
+    jz .root_dir_else
+    inc ax
+
+.root_dir_else:
+    ; read root directory
+    mov cl, al
+    pop ax
+    mov dl, [ebr_driver_number]
+    mov bx, buffer
+    call disk_read
+
+    ; search for kernel.bin
+    xor bx, bx
+    mov di, buffer
+
+.search_kernel:
+    mov si, file_kernel_bin
+    mov cx, 11
+    push di
+    repe cmpsb  ; compare ds:si and es:di while zero flag = 1 (they're equal)
+    pop di
+    je .found_kernel
+
+    add di, 32
+    inc bx
+    cmp bx, [bdb_dir_entry]
+    jl .search_kernel
+.found_kernel:
+    ; di now has address to entry (offset 26)
+    mov ax, [di + 26]
+    mov [kernel_cluster], ax
+
+    ; load fat from memory to disk
+    mov ax, [bdb_reserved]
+    mov bx, buffer
+    mov cl, [bdb_sectors_pf]
+    mov dl, [ebr_driver_number]
+    call disk_read
+
+    ; read kernel and process FAT chain
+    ; find maximum location on memory map to use
+    mov bx, KERNEL_LOAD_SEGMENT
+    mov es, bx
+    mov bx, KERNEL_LOAD_OFFSET
+
+.load_kernel_loop:
+    ; read cluster
+    mov ax, [kernel_cluster]
+    ; hardcoded, change
+    add ax, 31
+
+    ; care if file is bigger than 64kb
+    mov cl, 1
+    mov dl, [ebr_driver_number]
+    call disk_read
+
+    add bx, [bdb_bytes_ps]
+    mov ax, [kernel_cluster]
+    mov cx, 3
+    mul cx
+    mov cx, 2
+    div cx
+
+    mov si, buffer
+    add si, ax
+    mov ax, [ds:si]
+
+    or dx, dx
+    jz .even
+
+.odd: 
+    shr ax, 4
+    jmp .next_cluster_after
+.even:
+    and ax, 0x0FFF;
+.next_cluster_after:
+    cmp ax, 0x0FF8
+    jae .read_finish
+    mov [kernel_cluster], ax
+    jmp .load_kernel_loop
+
+.read_finish:
+    ; far jump into kernel
+    mov dl, [ebr_driver_number]
+    mov ax, KERNEL_LOAD_SEGMENT
+    mov ds, ax
+    mov es, ax
+
+    jmp KERNEL_LOAD_SEGMENT:KERNEL_LOAD_OFFSET
+
+    ; should never happen
+    jmp wait_key_and_reboot
+
+    cli
+    hlt
+;
+; error handler
+;
+floppy_error:
+    mov si, msg_read_failed
+    call prints
+    jmp wait_key_and_reboot
+    hlt
+
+kernel_not_found_error:
+    mov si, msg_kernel_not_found
+    call prints
+    jmp wait_key_and_reboot
+    hlt
+
+wait_key_and_reboot:
+    mov ah, 0
+    int 0x16
+    jmp 0xFFFF:0
+
+;
+; print
+;
 prints:
     push si
     push ax
@@ -53,46 +219,6 @@ prints:
     pop ax
     pop si
     ret
-
-main:
-    ; setup data segments 
-    mov ax, 0
-    mov ds, ax
-    mov es, ax
-
-    ; setup stack segments 
-    mov ss, ax
-    mov sp, 0x7C00
-
-    ; code 
-    mov [ebr_driver_number], dl
-    mov ax, 1
-    mov cl, 1
-    mov bx, 0x7E00
-    call disk_read
-
-    mov si, msg_hello
-    call prints
-
-    cli
-    hlt
-;
-; error handler
-;
-floppy_error:
-    mov si, msg_read_failed
-    call prints
-    jmp .wait_key_and_reboot
-    hlt
-
-.wait_key_and_reboot:
-    mov ah, 0
-    int 0x16
-    jmp 0xFFFF:0
-
-.halt:
-    cli
-    jmp .halt
 
 ;
 ; disk routines
@@ -170,7 +296,7 @@ disk_read:
 .fail:
     jmp floppy_error
 
-.done
+.done:
     popa
 
     pop di
@@ -192,10 +318,16 @@ disk_reset:
     ret
 
 
-msg_hello:
-    db 'Hello world!', ENDL, 0
-msg_read_failed:
-    db 'Read from disk failed', ENDL, 0
+msg_loading: db 'Loading...', ENDL, 0
+msg_read_failed: db 'Read from disk failed', ENDL, 0
+msg_kernel_not_found: db 'KERNEL.BIN file not found', ENDL, 0
+file_kernel_bin: db 'KERNEL  BIN'
+kernel_cluster: dw 0
+
+KERNEL_LOAD_SEGMENT equ 0x2000
+KERNEL_LOAD_OFFSET equ 0
 
 times 510-($-$$) db 0
 dw 0xAA55
+
+buffer:
