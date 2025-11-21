@@ -9,7 +9,7 @@ _start:
 prints:
     push si
     push ax
-loop:
+.loop:
     lodsb
     or al, al
     jz .done
@@ -18,7 +18,7 @@ loop:
     mov bh, 0
     int 0x10
 
-    jmp loop
+    jmp .loop
 .done:
     pop ax
     pop si
