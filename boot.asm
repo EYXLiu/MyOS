@@ -1,21 +1,48 @@
-[org 0x7C00]
+org 0x7C00
+bits 16
 
-mov ah, 0x0e
-mov bx, variable
+%define ENDL 0x0D, 0x0A
 
-print:
-    mov al, [bx]
-    cmp al, 0
-    je end
+_start:
+    jmp main
+
+prints:
+    push si
+    push ax
+loop:
+    lodsb
+    or al, al
+    jz .done
+
+    mov ah, 0x0e
+    mov bh, 0
     int 0x10
-    inc bx
-    jmp print
-end:
 
-jmp $
+    jmp loop
+.done:
+    pop ax
+    pop si
+    ret
 
-variable:
-    db "Hello World!", 0
+main:
+    ; setup data segments 
+    mov ax, 0
+    mov ds, ax
+    mov es, ax
+
+    ; setup stack segments 
+    mov ss, ax
+    mov sp, 0x7C00
+
+    ; code 
+    mov si, hello
+    call prints
+
+.halt:
+    jmp .halt
+
+hello:
+    db 'Hello world!', ENDL, 0
 
 times 510-($-$$) db 0
-db 0x55, 0xaa
+dw 0xAA55
