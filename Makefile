@@ -13,8 +13,7 @@ all: floppy
 #
 floppy: $(BUILD_DIR)/floppy.img
 $(BUILD_DIR)/floppy.img: $(BUILD_DIR)/boot.bin $(BUILD_DIR)/kernel.bin | $(BUILD_DIR)
-	dd if=/dev/zero of=$(BUILD_DIR)/floppy.img bs=512 count=2880
-	mkfs.fat -F 12 -n "NBOS" $(BUILD_DIR)/floppy.img
+	mformat -C -v "NBOS" -f 1440 -i $(BUILD_DIR)/floppy.img
 	dd if=$(BUILD_DIR)/boot.bin of=$(BUILD_DIR)/floppy.img conv=notrunc
 	mcopy -i $(BUILD_DIR)/floppy.img $(BUILD_DIR)/kernel.bin "::kernel.bin"
 
