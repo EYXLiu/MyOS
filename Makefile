@@ -1,5 +1,6 @@
 AS = nasm
 CC = gcc
+
 MAKE = make
 BUILD_DIR = build
 SRC_DIR = src
@@ -7,7 +8,7 @@ TOOLS_DIR = tools
 
 .PHONY: all floppy kernel bootloader run mdir clean always tools_fat
 
-all: bootloader tools_fat
+all: bootloader 
 
 #
 # bootloader
@@ -15,10 +16,12 @@ all: bootloader tools_fat
 bootloader: stage1 stage2
 
 stage1: $(BUILD_DIR)/stage1.bin
+
 $(BUILD_DIR)/stage1.bin: always
 	$(MAKE) -C $(SRC_DIR)/bootloader/stage1 BUILD_DIR=$(abspath $(BUILD_DIR)) AS=$(AS)
 
 stage2: $(BUILD_DIR)/stage2.bin
+
 $(BUILD_DIR)/stage2.bin: always
 	$(MAKE) -C $(SRC_DIR)/bootloader/stage2 BUILD_DIR=$(abspath $(BUILD_DIR)) AS=$(AS)
 
@@ -26,6 +29,7 @@ $(BUILD_DIR)/stage2.bin: always
 # kernel
 #
 kernel: $(BUILD_DIR)/kernel.bin
+
 $(BUILD_DIR)/kernel.bin: always
 	$(MAKE) -C $(SRC_DIR)/kernel BUILD_DIR=$(abspath $(BUILD_DIR)) AS=$(AS)
 
@@ -38,6 +42,8 @@ always:
 #
 # tools
 #
+tools: tools_fat
+
 tools_fat: $(BUILD_DIR)/tools/fat
 $(BUILD_DIR)/tools/fat: $(TOOLS_DIR)/fat/fat.c
 	mkdir -p $(BUILD_DIR)/tools
@@ -73,4 +79,4 @@ clean:
 	$(MAKE) -C $(SRC_DIR)/bootloader/stage1 BUILD_DIR=$(abspath $(BUILD_DIR)) clean
 	$(MAKE) -C $(SRC_DIR)/bootloader/stage2 BUILD_DIR=$(abspath $(BUILD_DIR)) clean
 	$(MAKE) -C $(SRC_DIR)/kernel BUILD_DIR=$(abspath $(BUILD_DIR)) clean
-	rm -rf $(BUILD_DIR)
+	rm -rf $(BUILD_DIR)/*

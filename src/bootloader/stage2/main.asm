@@ -6,6 +6,7 @@ extern _cstart_
 global entry
 
 entry:
+    ; set up stack
     cli
     mov ax, ds
     mov ss, ax
@@ -13,7 +14,6 @@ entry:
     mov bp, sp
     sti
 
-    ; expect boot drive in dl
     xor dh, dh
     push dx
     call _cstart_

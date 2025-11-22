@@ -6,13 +6,8 @@ For qemu <br/>
   - `xp /128bx 0x7e00` to check buffer <br/>
 - `option control 1` to switch back <br/>
 
-# DOSBOX - run in this order - make sure make is already run outside
-/Applications/DOSBox-X.app/Contents/MacOS/dosbox-x <br/>
-`mount c ~/downloads/watcom-dos` <br/>
-`mount d ~/documents/github/myos` <br/>
-`set PATH=C:\WATCOM\BINW;%PATH%` <br/>
-`d:` <br/>
-`wmake /f wmakefile` <br/>
+# Docker image
+`docker run --rm -it -v ~/documents/github/myos:/src arlaneenalra/watcom-docker:latest sh` <br/>
 
 # How I got started 
 [Nanobyte Playlist](https://www.youtube.com/playlist?list=PLFjM7v6KGMpiH2G-kT781ByCNC_0pKpPN) <br/>
