@@ -1,13 +1,28 @@
 # Custom OS
 
-## Commands
-For qemu <br/>
+## QEMU Commands
 - `option control 2` for Monitor console <br/>
   - `xp /128bx 0x7e00` to check buffer <br/>
 - `option control 1` to switch back <br/>
 
-## Docker image
-`docker run --rm -it -v ~/documents/github/myos:/src arlaneenalra/watcom-docker:latest sh` <br/>
+## To compile for MacOS
+Since Macos can't run watcom, we use a linux docker image to run the wcc/wlink commands <br/>
+In terminal
+```
+docker pull arlaneenalra/watcom-docker:latest
+docker run --rm -it -v ~/documents/github/myos:/src arlaneenalra/watcom-docker:latest sh
+```
+In the docker image <br/>
+```
+make
+```
+In terminal <br/>
+```
+make tools
+make floppy
+make run
+make mdir
+```
 
 ## How I got started 
 [Daedalus Playlist](https://www.youtube.com/playlist?list=PLm3B56ql_akNcvH8vvJRYOc7TbYhRs19M) <br/>
