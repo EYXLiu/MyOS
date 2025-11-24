@@ -5,3 +5,5 @@
 STAGE2_O.BAK
 STAGE2_O.LIB
 *.ERR
+
+/.vscode

@@ -18,12 +18,10 @@ make
 ```
 In terminal <br/>
 ```
-make tools
-make floppy
 make run
-make mdir
 ```
 
 ## How I got started 
+[OSDev Wiki](https://wiki.osdev.org/Expanded_Main_Page) <br/>
 [Daedalus Playlist](https://www.youtube.com/playlist?list=PLm3B56ql_akNcvH8vvJRYOc7TbYhRs19M) <br/>
 [Nanobyte Playlist](https://www.youtube.com/playlist?list=PLFjM7v6KGMpiH2G-kT781ByCNC_0pKpPN) <br/>

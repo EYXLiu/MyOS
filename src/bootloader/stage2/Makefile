@@ -2,7 +2,7 @@ BUILD_DIR?=build
 AS?=nasm
 ASFLAGS=-f obj
 CC16?=wcc
-CFLAGS16=-4 -d3 -s -wx -ms -zl -zq
+CFLAGS16=-4 -d3 -s -wx -ms -zl -zq -za99
 LD16=wlink
 
 SOURCES_ASM = $(wildcard *.asm)

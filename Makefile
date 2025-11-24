@@ -69,7 +69,7 @@ mdir: $(BUILD_DIR)/floppy.img
 #
 # run
 #
-run: $(BUILD_DIR)/floppy.img
+run: floppy
 	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img
 
 #
