@@ -18,6 +18,19 @@ void _cdecl cstart_(uint16_t bootDrive) {
         goto end;
     }
 
+    /*
+    FAT_File far* fd_all = FAT_Open(&disk, "/");
+    FAT_DirectoryEntry entry;
+    while (FAT_ReadEntry(&disk, fd_all, &entry) && *entry.Name != 0x00) {
+        printf("  ");
+        for (int i = 0; i < 11; i++)
+            putc(entry.Name[i]);
+        printf("\r\n");
+    }
+    FAT_Close(fd_all);
+    */
+    
+
     char buffer[100];
     uint32_t read;
     FAT_File far* fd = FAT_Open(&disk, "text.txt");
