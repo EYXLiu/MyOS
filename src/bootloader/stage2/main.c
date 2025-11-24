@@ -43,6 +43,7 @@ void _cdecl cstart_(uint16_t bootDrive) {
                 putc('\r');
             putc(buffer[i]);
         }
+        printf("\r\n");
     }
     FAT_Close(fd);
 
