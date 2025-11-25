@@ -53,6 +53,7 @@ $(BUILD_DIR)/floppy.img: bootloader kernel
 	mcopy -i $(BUILD_DIR)/floppy.img $(BUILD_DIR)/stage2.bin "::stage2.bin"
 	mcopy -i $(BUILD_DIR)/floppy.img $(BUILD_DIR)/kernel.bin "::kernel.bin"
 	mcopy -i $(BUILD_DIR)/floppy.img text.txt "::text.txt"
+	mmd -i $(BUILD_DIR)/floppy.img "::dir"
 
 #
 # confirm
@@ -64,7 +65,7 @@ mdir: floppy
 # bochs
 # 
 debug: floppy
-	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img -S -s -serial stdio & sleep 1 && gdb -ex "target remote localhost:1234"
+	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img -S -s -serial stdio & sleep 1 && gdb -tui -ex "target remote localhost:1234"
 #
 # run
 #
