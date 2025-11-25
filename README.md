@@ -6,22 +6,23 @@
 - `option control 1` to switch back <br/>
 
 ## To compile for MacOS
-Since Macos can't run watcom, we use a linux docker image to run the wcc/wlink commands <br/>
-In terminal
-```
-docker pull arlaneenalra/watcom-docker:latest
-docker run --rm -it -v ~/documents/github/myos:/src arlaneenalra/watcom-docker:latest sh
-```
-In the docker image <br/>
+Requirements <br/>
+- i686.elf-gcc
+- NASM
+- QEMU
+- gdb
+To compile <br/>
 ```
 make
-```
-In terminal <br/>
-```
 make run
+```
+To test (in gdb) <br/>
+```
+make debug
 ```
 
 ## How I got started 
 [OSDev Wiki](https://wiki.osdev.org/Expanded_Main_Page) <br/>
+[x86 Assembly](https://www.felixcloutier.com/x86/) <br/>
 [Daedalus Playlist](https://www.youtube.com/playlist?list=PLm3B56ql_akNcvH8vvJRYOc7TbYhRs19M) <br/>
 [Nanobyte Playlist](https://www.youtube.com/playlist?list=PLFjM7v6KGMpiH2G-kT781ByCNC_0pKpPN) <br/>

@@ -1,10 +1,9 @@
-AS = nasm
-CC = gcc
-
 MAKE = make
 BUILD_DIR = build
 SRC_DIR = src
 TOOLS_DIR = tools
+
+include make_scripts/config.mk
 
 .PHONY: all floppy kernel bootloader run mdir clean always tools_fat
 
@@ -18,12 +17,12 @@ bootloader: stage1 stage2
 stage1: $(BUILD_DIR)/stage1.bin
 
 $(BUILD_DIR)/stage1.bin: always
-	$(MAKE) -C $(SRC_DIR)/bootloader/stage1 BUILD_DIR=$(abspath $(BUILD_DIR)) AS=$(AS)
+	$(MAKE) -C $(SRC_DIR)/bootloader/stage1 BUILD_DIR=$(abspath $(BUILD_DIR))
 
 stage2: $(BUILD_DIR)/stage2.bin
 
 $(BUILD_DIR)/stage2.bin: always
-	$(MAKE) -C $(SRC_DIR)/bootloader/stage2 BUILD_DIR=$(abspath $(BUILD_DIR)) AS=$(AS)
+	$(MAKE) -C $(SRC_DIR)/bootloader/stage2 BUILD_DIR=$(abspath $(BUILD_DIR))
 
 #
 # kernel
@@ -58,14 +57,19 @@ $(BUILD_DIR)/floppy.img: bootloader kernel
 #
 # confirm
 #
-mdir: $(BUILD_DIR)/floppy.img
+mdir: floppy
 	mdir -i $(BUILD_DIR)/floppy.img
 
+#
+# bochs
+# 
+debug: floppy
+	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img -S -s -serial stdio & sleep 1 && gdb -ex "target remote localhost:1234"
 #
 # run
 #
 run: floppy
-	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img
+	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img 
 
 #
 # clean
