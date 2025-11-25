@@ -2,6 +2,13 @@
 #include "stdio.h"
 #include "disk.h"
 #include "fat.h"
+#include "memdefs.h"
+#include "memory.h"
+
+uint8_t* KernelLoadBuffer = (uint8_t*)MEMORY_LOAD_KERNEL;
+uint8_t* Kernel = (uint8_t*)MEMORY_KERNEL_ADDR;
+
+typedef void (*KernelStart)();
 
 void __attribute__((cdecl)) cstart(uint16_t bootDrive) 
 {
@@ -18,27 +25,13 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive)
         printf("MAIN: fat init error\r\n");
         goto end;
     }
-    
-    /*
-    FAT_File* fd_all = FAT_Open(&disk, "/");
-    FAT_DirectoryEntry entry;
-    while (FAT_ReadEntry(&disk, fd_all, &entry) && *entry.Name != 0x00) {
-        if (*entry.Name == 0xE5) continue;
-        printf("  ");
-        for (int i = 0; i < 11; i++)
-            putc(entry.Name[i]);
-        printf("\r\n");
-    }
-    FAT_Close(fd_all);
-    */
-    
-
+    // load from fat
     char buffer[100];
-    uint32_t read;
-    FAT_File* fd = FAT_Open(&disk, "text.txt");
-    while ((read = FAT_Read(&disk, fd, sizeof(buffer), buffer)))
+    uint32_t readFat;
+    FAT_File* f_fd = FAT_Open(&disk, "text.txt");
+    while ((readFat = FAT_Read(&disk, f_fd, sizeof(buffer), buffer)))
     {
-        for (uint32_t i = 0; i < read; i++)
+        for (uint32_t i = 0; i < readFat; i++)
         {
             if (buffer[i] == '\n')
                 putc('\r');
@@ -46,8 +39,21 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive)
         }
         printf("\r\n");
     }
-    FAT_Close(fd);
+    FAT_Close(f_fd);
+
+    // load kernel
+    FAT_File* k_fd = FAT_Open(&disk, "/kernel.bin");
+    uint32_t readKernel;
+    uint8_t* kernelBuffer = Kernel;
+    while ((readKernel = FAT_Read(&disk, k_fd, MEMORY_LOAD_SIZE, KernelLoadBuffer))) {
+        memcpy(kernelBuffer, KernelLoadBuffer, readKernel);
+        kernelBuffer += readKernel;
+    }
+    FAT_Close(k_fd);
     
+    KernelStart kernelStart = (KernelStart)Kernel;
+    kernelStart();
+
 end:
     for (;;);
 }
