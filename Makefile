@@ -12,7 +12,7 @@ all: bootloader
 #
 # bootloader
 #
-bootloader: stage1 stage2
+bootloader: stage1 stage2 kernel
 
 stage1: $(BUILD_DIR)/stage1.bin
 
@@ -30,7 +30,7 @@ $(BUILD_DIR)/stage2.bin: always
 kernel: $(BUILD_DIR)/kernel.bin
 
 $(BUILD_DIR)/kernel.bin: always
-	$(MAKE) -C $(SRC_DIR)/kernel BUILD_DIR=$(abspath $(BUILD_DIR)) AS=$(AS)
+	$(MAKE) -C $(SRC_DIR)/kernel BUILD_DIR=$(abspath $(BUILD_DIR)) SRC_DIR=$(abspath $(SRC_DIR))
 
 #
 # build folder

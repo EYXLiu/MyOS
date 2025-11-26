@@ -41,6 +41,7 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive)
     }
     FAT_Close(f_fd);
 
+
     // load kernel
     FAT_File* k_fd = FAT_Open(&disk, "/kernel.bin");
     uint32_t readKernel;
