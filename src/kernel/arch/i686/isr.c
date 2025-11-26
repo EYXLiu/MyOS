@@ -74,7 +74,7 @@ void __attribute__((cdecl)) i686_ISR_Handler(Registers* regs)
         printf("  interrupt=%x  errorcode=%x\n", regs->interrupt, regs->error);
 
         printf("Fatal exception occured; system stopping\n");
-        i686_Panic();
+        i686_Halt();
     }
 }
 
