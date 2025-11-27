@@ -20,28 +20,28 @@ i686_ISR%1:
 %include "arch/i686/isrs_gen.inc"
 
 isr_common:
-    pusha               ; pushes in order: eax, ecx, edx, ebx, esp, ebp, esi, edi
+    pusha
 
-    xor eax, eax        ; push ds
+    xor eax, eax
     mov ax, ds
     push eax
 
-    mov ax, 0x10        ; use kernel data segment
+    mov ax, 0x10 
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
     
-    push esp            ; pass pointer to stack to C, so we can access all the pushed information
+    push esp 
     call i686_ISR_Handler
     add esp, 4
 
-    pop eax             ; restore old segment
+    pop eax 
     mov ds, ax
     mov es, ax
     mov fs, ax
     mov gs, ax
 
-    popa                ; pop what we pushed with pusha
-    add esp, 8          ; remove error code and interrupt number
-    iret                ; will pop: cs, eip, eflags, ss, esp
+    popa 
+    add esp, 8 
+    iret
