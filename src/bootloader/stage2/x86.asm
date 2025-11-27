@@ -221,11 +221,91 @@ x86_Disk_GetDriveParams:
 
     x86_EnterProtectedMode
 
-    [bits 32]
-
     pop eax
 
     mov esp, ebp
     pop ebp
     ret
 
+global x86_Video_GetVbeInfo
+x86_Video_GetVbeInfo:
+    [bits 32]
+    push ebp 
+    mov ebp, esp 
+    x86_EnterRealMode
+
+    push edi
+    push es
+
+    mov eax, 0x4F00
+    LinearToSegOffset [bp + 8], es, edi, di
+    int 0x10
+
+    pop es
+    pop edi
+
+    push eax
+    x86_EnterProtectedMode
+    pop eax
+
+    mov esp, ebp
+    pop ebp
+    ret
+
+global x86_Video_GetModeInfo
+x86_Video_GetModeInfo:
+    [bits 32]
+    push ebp 
+    mov ebp, esp 
+    x86_EnterRealMode
+
+    push edi
+    push es
+    push ecx
+
+    mov eax, 0x4F01
+    mov cx, [bp + 8]
+    LinearToSegOffset [bp + 12], es, edi, di
+    int 0x10
+
+    pop ecx
+    pop es
+    pop edi
+
+    push eax
+    x86_EnterProtectedMode
+    pop eax
+
+    mov esp, ebp
+    pop ebp
+    ret
+
+global x86_Video_SetMode
+x86_Video_SetMode:
+    [bits 32]
+    push ebp 
+    mov ebp, esp 
+    x86_EnterRealMode
+
+    push edi
+    push es
+    push ebx
+
+    mov ax, 0
+    mov es, ax
+    mov edi, 0
+    mov eax, 0x4F02
+    mov bx, [bp + 8]
+    int 0x10
+
+    pop ebx
+    pop es
+    pop edi
+
+    push eax
+    x86_EnterProtectedMode
+    pop eax
+
+    mov esp, ebp
+    pop ebp
+    ret
