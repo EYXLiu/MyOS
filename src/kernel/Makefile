@@ -1,7 +1,8 @@
 ASFLAGS += -f elf
 TARGET_CFLAGS += -ffreestanding -nostdlib -I.
+TARGET_CPPFLAGS += -ffreestanding -nostdlib -I.
 TARGET_LFLAGS += -T linker.ld -nostdlib
-TARGET_LIBS += -lgcc
+TARGET_LIBS += $(BUILD_DIR)/libcore.a -lgcc
 
 HEADERS_ASM := $(shell find $(SRC_DIR)/kernel -name '*.inc')
 SOURCES_ASM := $(shell find $(SRC_DIR)/kernel -name '*.asm')
@@ -26,11 +27,12 @@ $(BUILD_DIR)/kernel/c/%.obj: %.c $(HEADERS_C) | always
 	@$(TARGET_CC) $(TARGET_CFLAGS) -c -o $@ $<
 
 always:
-	@mkdir -p $(BUILD_DIR)/kernel/asm/arch/i686
 	@mkdir -p $(BUILD_DIR)/kernel/asm
-	@mkdir -p $(BUILD_DIR)/kernel/c/arch/i686
-	@mkdir -p $(BUILD_DIR)/kernel/c/hal
+	@mkdir -p $(BUILD_DIR)/kernel/asm/arch/i686
 	@mkdir -p $(BUILD_DIR)/kernel/c
+	@mkdir -p $(BUILD_DIR)/kernel/c/hal
+	@mkdir -p $(BUILD_DIR)/kernel/c/arch/i686
+	@mkdir -p $(BUILD_DIR)/kernel/cpp
 
 clean:
 	@rm -rf $(BUILD_DIR)/kernel
