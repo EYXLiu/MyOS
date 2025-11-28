@@ -56,118 +56,55 @@ _start:
     mov si, msg_loading
     call prints
 
-    ; read drive parameters instead of relying on data
-    push es
-    mov ah, 0x08
+    ; check extensions present
+    mov ah, 0x41
+    mov bx, 0x55AA
+    stc
     int 0x13
-    jc floppy_error
-    pop es
 
-    and cl, 0x3F
-    xor ch, ch
-    mov [bdb_sectors_pt], cx
+    jc .no_disk_extensions
+    cmp bx, 0xAA55
+    jne .no_disk_extensions
+    
+    ; extensions are present
+    mov byte [have_extensions], 1
+    jmp .after_disk_extention_check
 
-    inc dh
-    mov [bdb_heads], dh
 
-    ; read FAT root directory
-    mov ax, [bdb_sectors_pf]
-    mov bl, [bdb_fat_count]
-    xor bh, bh
-    mul bx
-    add ax, [bdb_reserved]
-    push ax
+.no_disk_extensions:
+    mov byte [have_extensions], 0
 
-    mov ax, [bdb_sectors_pf]
-    shl ax, 5
-    xor dx, dx
-    div word [bdb_bytes_ps]
+.after_disk_extention_check:
+    ; load stage 2
+    mov si, stage2_location
 
-    test dx, dx
-    jz .root_dir_else
-    inc ax
-
-.root_dir_else:
-    ; read root directory
-    mov cl, al
-    pop ax
-    mov dl, [ebr_driver_number]
-    mov bx, buffer
-    call disk_read
-
-    ; search for stage2.bin
-    xor bx, bx
-    mov di, buffer
-
-.search_stage2:
-    mov si, file_stage2_bin
-    mov cx, 11
-    push di
-    repe cmpsb  ; compare ds:si and es:di while zero flag = 1 (they're equal)
-    pop di
-    je .found_stage2
-
-    add di, 32
-    inc bx
-    cmp bx, [bdb_dir_entry]
-    jl .search_stage2
-.found_stage2:
-    ; di now has address to entry (offset 26)
-    mov ax, [di + 26]
-    mov [stage2_cluster], ax
-
-    ; load fat from memory to disk
-    mov ax, [bdb_reserved]
-    mov bx, buffer
-    mov cl, [bdb_sectors_pf]
-    mov dl, [ebr_driver_number]
-    call disk_read
-
-    ; read stage2 and process FAT chain
-    ; find maximum location on memory map to use
-    mov bx, STAGE2_LOAD_SEGMENT
-    mov es, bx
+    mov ax, STAGE2_LOAD_SEGMENT
+    mov es, ax
     mov bx, STAGE2_LOAD_OFFSET
 
-.load_stage2_loop:
-    ; read cluster
-    mov ax, [stage2_cluster]
-    ; hardcoded, change
-    add ax, 31
+.loop:
+    mov eax, [si]
+    add si, 4
+    mov cl, [si]
+    inc si
 
-    ; care if file is bigger than 64kb
-    mov cl, 1
-    mov dl, [ebr_driver_number]
+    cmp eax, 0
+    je .read_finish
+
     call disk_read
 
-    add bx, [bdb_bytes_ps]
-    mov ax, [stage2_cluster]
-    mov cx, 3
-    mul cx
-    mov cx, 2
-    div cx
+    xor ch, ch
+    shl cx, 5
+    mov di, es
+    add di, cx
+    mov es, di
 
-    mov si, buffer
-    add si, ax
-    mov ax, [ds:si]
-
-    or dx, dx
-    jz .even
-
-.odd: 
-    shr ax, 4
-    jmp .next_cluster_after
-.even:
-    and ax, 0x0FFF;
-.next_cluster_after:
-    cmp ax, 0x0FF8
-    jae .read_finish
-    mov [stage2_cluster], ax
-    jmp .load_stage2_loop
+    jmp .loop
 
 .read_finish:
     ; far jump into stage2
     mov dl, [ebr_driver_number]
+
     mov ax, STAGE2_LOAD_SEGMENT
     mov ds, ax
     mov es, ax
@@ -261,18 +198,35 @@ lba_to_chs:
 ;
 ; read from disk
 ; parameters
-;   ax: LBA 
+;   eax: LBA 
 ;   cl: sectors to read
 ;   dl: drive number
 ;   es:bx: memory address to store read
 ; 
 disk_read:
-    push ax
+    push eax
     push bx
     push cx
     push dx
     push di
 
+    ; check extensions
+    cmp byte [have_extensions], 1
+    jne .no_disk_extensions
+
+    ; with extensions
+    mov [extensions_dap.count], cl
+    mov [extensions_dap.segment], es
+    mov [extensions_dap.offset], bx
+    mov [extensions_dap.lba], eax
+
+    mov ah, 0x42
+    mov si, extensions_dap
+    mov di, 3
+    int 0x13
+    jmp .loop
+
+.no_disk_extensions:
     push cx
     call lba_to_chs
     pop ax
@@ -303,7 +257,7 @@ disk_read:
     pop dx
     pop cx
     pop bx
-    pop ax
+    pop eax
     ret
 
 ;
@@ -322,13 +276,24 @@ msg_loading: db 'Loading...', ENDL, 0
 msg_read_failed: db 'Read from disk failed', ENDL, 0
 msg_stage2_not_found: db 'STAGE2.BIN file not found', ENDL, 0
 file_stage2_bin: db 'STAGE2  BIN'
-stage2_cluster: dw 0
+
+have_extensions: db 0
+extensions_dap:
+    .size db 0x10
+    .unused db 0
+    .count: dw 0
+    .segment: dw 0
+    .offset: dw 0
+    .lba dq 0
 
 ; for protected mode 
 STAGE2_LOAD_SEGMENT equ 0x0
 STAGE2_LOAD_OFFSET equ 0x500
 
-times 510-($-$$) db 0
+times 510-30-($-$$) db 0
+
+stage2_location: times 30 db 0
+
 dw 0xAA55
 
 buffer:
