@@ -15,17 +15,17 @@ all: stage2
 stage2: $(BUILD_DIR)/stage2.bin
 
 $(BUILD_DIR)/stage2.bin: $(OBJECTS_ASM) $(OBJECTS_C)
-	$(TARGET_LD) $(TARGET_LFLAGS) -Wl,-Map=$(BUILD_DIR)/stage2.map -o $@ $^ $(TARGET_LIBS)
+	@$(TARGET_LD) $(TARGET_LFLAGS) -Wl,-Map=$(BUILD_DIR)/stage2.map -o $@ $^ $(TARGET_LIBS)
 
 $(BUILD_DIR)/stage2/asm/%.obj: %.asm | always
-	$(AS) $(ASFLAGS) -o $@ $< 
+	@$(AS) $(ASFLAGS) -o $@ $< 
 
 $(BUILD_DIR)/stage2/c/%.obj: %.c | always
-	$(TARGET_CC) $(TARGET_CFLAGS) -c -o $@ $<
+	@$(TARGET_CC) $(TARGET_CFLAGS) -c -o $@ $<
 
 always:
-	mkdir -p $(BUILD_DIR)/stage2/asm
-	mkdir -p $(BUILD_DIR)/stage2/c
+	@mkdir -p $(BUILD_DIR)/stage2/asm
+	@mkdir -p $(BUILD_DIR)/stage2/c
 
 clean:
-	rm -rf $(BUILD_DIR)/stage2
+	@rm -rf $(BUILD_DIR)/stage2

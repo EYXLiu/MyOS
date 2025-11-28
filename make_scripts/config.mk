@@ -9,3 +9,6 @@ export TARGET_LD = $(TARGET)-gcc
 export TARGET_OBJCOPY = $(TARGET)-objcopy
 export TARGET_LFLAGS = 
 export TARGET_LIBS =
+
+export SOURCE_DIR = $(abspath .)
+export BUILD_DIR = $(abspath build)
