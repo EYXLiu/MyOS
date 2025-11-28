@@ -64,7 +64,7 @@ debug: floppy
 # run
 #
 run: floppy
-	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img 
+	@qemu-system-i386 -debugcon stdio -fda $(BUILD_DIR)/floppy.img
 
 #
 # clean

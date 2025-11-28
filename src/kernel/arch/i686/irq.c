@@ -37,7 +37,6 @@ void i686_IRQ_Initialize() {
         return;
     }
 
-    printf("IRQ: found %s driver\n", g_PicDriver->Name);
     g_PicDriver->Initialize(PIC_REMAP_OFFSET, PIC_REMAP_OFFSET + 8, false);
 
     // register ISR for each IRQ
