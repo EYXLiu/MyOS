@@ -11,7 +11,7 @@ HEADERS_C := $(shell find $(SRC_DIR)/kernel -name '*.h')
 SOURCES_C := $(shell find $(SRC_DIR)/kernel -name '*.c')
 OBJECTS_C := $(patsubst $(SRC_DIR)/kernel/%.c, $(BUILD_DIR)/kernel/c/%.obj, $(SOURCES_C))
 
-.PHONY: all kernel clean always
+.PHONY: all kernel clean 
 
 all: kernel
 
@@ -20,19 +20,13 @@ kernel: $(BUILD_DIR)/kernel.bin
 $(BUILD_DIR)/kernel.bin: $(OBJECTS_ASM) $(OBJECTS_C)
 	@$(TARGET_LD) $(TARGET_LFLAGS) -Wl,-Map=$(BUILD_DIR)/kernel.map -o $@ $^ $(TARGET_LIBS)
 
-$(BUILD_DIR)/kernel/asm/%.obj: %.asm $(HEADERS_ASM) | always
+$(BUILD_DIR)/kernel/asm/%.obj: %.asm $(HEADERS_ASM)
+	@mkdir -p $(dir $@)
 	@$(AS) $(ASFLAGS) -o $@ $< 
 
-$(BUILD_DIR)/kernel/c/%.obj: %.c $(HEADERS_C) | always
+$(BUILD_DIR)/kernel/c/%.obj: %.c $(HEADERS_C) 
+	@mkdir -p $(dir $@)
 	@$(TARGET_CC) $(TARGET_CFLAGS) -c -o $@ $<
-
-always:
-	@mkdir -p $(BUILD_DIR)/kernel/asm
-	@mkdir -p $(BUILD_DIR)/kernel/asm/arch/i686
-	@mkdir -p $(BUILD_DIR)/kernel/c
-	@mkdir -p $(BUILD_DIR)/kernel/c/hal
-	@mkdir -p $(BUILD_DIR)/kernel/c/arch/i686
-	@mkdir -p $(BUILD_DIR)/kernel/cpp
 
 clean:
 	@rm -rf $(BUILD_DIR)/kernel

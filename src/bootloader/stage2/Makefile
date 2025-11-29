@@ -8,7 +8,7 @@ OBJECTS_ASM = $(patsubst %.asm, $(BUILD_DIR)/stage2/asm/%.obj, $(SOURCES_ASM))
 SOURCES_C = $(wildcard *.c)
 OBJECTS_C = $(patsubst %.c, $(BUILD_DIR)/stage2/c/%.obj, $(SOURCES_C))
 
-.PHONY: all stage2 clean always
+.PHONY: all stage2 clean 
 
 all: stage2
 
@@ -17,15 +17,13 @@ stage2: $(BUILD_DIR)/stage2.bin
 $(BUILD_DIR)/stage2.bin: $(OBJECTS_ASM) $(OBJECTS_C)
 	@$(TARGET_LD) $(TARGET_LFLAGS) -Wl,-Map=$(BUILD_DIR)/stage2.map -o $@ $^ $(TARGET_LIBS)
 
-$(BUILD_DIR)/stage2/asm/%.obj: %.asm | always
+$(BUILD_DIR)/stage2/asm/%.obj: %.asm
+	@mkdir -p $(dir $@)
 	@$(AS) $(ASFLAGS) -o $@ $< 
 
-$(BUILD_DIR)/stage2/c/%.obj: %.c | always
+$(BUILD_DIR)/stage2/c/%.obj: %.c
+	@mkdir -p $(dir $@)
 	@$(TARGET_CC) $(TARGET_CFLAGS) -c -o $@ $<
-
-always:
-	@mkdir -p $(BUILD_DIR)/stage2/asm
-	@mkdir -p $(BUILD_DIR)/stage2/c
 
 clean:
 	@rm -rf $(BUILD_DIR)/stage2

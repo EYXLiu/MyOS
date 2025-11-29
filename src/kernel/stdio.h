@@ -8,7 +8,7 @@ void fputc(char c, fd_t file);
 void fputs(const char* str, fd_t file);
 void vfprintf(fd_t file, const char* fmt, va_list args);
 void fprintf(fd_t file, const char* fmt, ...);
-void fprint_buffer(fd_t, const char* msg, const void* buffer, uint32_t count);
+void fprint_buffer(fd_t file, const char* msg, const void* buffer, uint32_t count);
 
 void putc(char c);
 void puts(const char* str);
