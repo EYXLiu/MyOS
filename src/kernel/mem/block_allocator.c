@@ -1,6 +1,7 @@
 #include "block_allocator.h"
 #include <stdint.h>
 #include <stdio.h>
+#include <debug.h>
 
 struct BlockHeader* g_BlockHead;
 
@@ -20,7 +21,7 @@ void BlockMemInitialize(uint8_t* __end) {
     initial->prev = NULL;
     g_BlockHead = initial;
 
-    printf("HEAP: Heap allocated at 0x%x-0x%x\n", g_HeapBegin, g_HeapEnd);
+    log_debug("HEAP", "Heap allocated at 0x%x-0x%x", g_HeapBegin, g_HeapEnd);
 }
 
 void* KMalloc(size_t size) {
