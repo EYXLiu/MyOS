@@ -48,4 +48,5 @@ void i686_IRQ_Initialize() {
 
 void i686_IRQ_RegisterHandler(int irq, IRQHandler handler) {
     g_IRQHandlers[irq] = handler;
+    g_PicDriver->Unmask(irq);
 }

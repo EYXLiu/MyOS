@@ -4,7 +4,7 @@
 
 struct BlockHeader* g_BlockHead;
 
-#define HEAP_SIZE (16 * 1024 * 1024)
+#define HEAP_SIZE (16 * 1024 * 1024) // 16mb
 
 uintptr_t g_HeapBegin;
 uintptr_t g_HeapEnd;
