@@ -78,6 +78,16 @@ void VGA_putc(char c) {
         for (int i = 0; i < 4 - (g_ScreenX % 4); i++)
             VGA_putc(' ');
         break;
+    case '\b':
+        if (g_ScreenX > 0) g_ScreenX--;
+        else if (g_ScreenY > 0) {
+            g_ScreenY--;
+            for (g_ScreenX = SCREEN_WIDTH - 1; g_ScreenX > 0 && VGA_getchr(g_ScreenX, g_ScreenY) == '\0'; g_ScreenX--);
+            g_ScreenX++;
+        }
+        VGA_putchr(g_ScreenX, g_ScreenY, '\0');
+        VGA_putcolor(g_ScreenX, g_ScreenY, DEFAULT_COLOR);
+        break;
     default:
         VGA_putchr(g_ScreenX, g_ScreenY, c);
         g_ScreenX++;
