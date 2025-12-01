@@ -18,7 +18,7 @@ stage1: $(BUILD_DIR)/stage1.bin
 $(BUILD_DIR)/stage1.bin: always
 	@$(MAKE) -C $(SRC_DIR)/bootloader/stage1 BUILD_DIR=$(abspath $(BUILD_DIR))
 
-stage2: $(BUILD_DIR)/stage2.bin
+stage2: $(BUILD_DIR)/stage2.bin core
 
 $(BUILD_DIR)/stage2.bin: always
 	@$(MAKE) -C $(SRC_DIR)/bootloader/stage2 BUILD_DIR=$(abspath $(BUILD_DIR))

@@ -309,3 +309,59 @@ x86_Video_SetMode:
     mov esp, ebp
     pop ebp
     ret
+
+E820Signature equ 0x534D4150
+
+global x86_E820GetNextBlock
+x86_E820GetNextBlock:
+    push ebp
+    mov ebp, esp
+
+    x86_EnterRealMode
+    
+    push ebx
+    push ecx
+    push edx
+    push esi
+    push edi
+    push ds
+    push es    
+
+    LinearToSegOffset [bp + 8], es, edi, di ; pointer to structure
+    LinearToSegOffset [bp + 12], ds, esi, si ; pointer to continuation
+    mov ebx, ds:[si]
+
+    mov eax, 0xE820 ; function
+    mov edx, E820Signature ; signature
+    mov ecx, 24 ; size of signature
+
+    int 0x15
+
+    cmp eax, E820Signature
+    jne .error
+
+    mov eax, ecx
+    mov ds:[si], ebx
+    jmp .endif
+
+.error:
+    mov eax, -1
+
+.endif:
+    pop es
+    pop ds
+    pop edi
+    pop esi
+    pop edx
+    pop ecx
+    pop ebx
+
+    push eax
+
+    x86_EnterProtectedMode
+
+    pop eax
+
+    mov esp, ebp
+    pop ebp
+    ret

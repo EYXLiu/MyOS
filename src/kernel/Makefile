@@ -1,6 +1,5 @@
 ASFLAGS += -f elf
-TARGET_CFLAGS += -ffreestanding -nostdlib -I.
-TARGET_CPPFLAGS += -ffreestanding -nostdlib -I.
+TARGET_CFLAGS += -ffreestanding -nostdlib -I. -I$(SRC_DIR)/libs
 TARGET_LFLAGS += -T linker.ld -nostdlib
 TARGET_LIBS += $(BUILD_DIR)/libcore.a -lgcc
 

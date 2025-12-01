@@ -1,6 +1,6 @@
 ASFLAGS += -f elf
 TARGET_CFLAGS += -ffreestanding -nostdlib -I.
-TARGET_CPPFLAGS += -ffreestanding -nostdlib -I.
+TARGET_CPPFLAGS += -ffreestanding -fno-use-cxa-atexit -fno-exceptions -fno-rtti -nostdlib -I.
 TARGET_LFLAGS += -T linker.ld -nostdlib
 TARGET_LIBS += -lgcc
 
@@ -14,27 +14,23 @@ HEADERS_CPP := $(shell find $(SRC_DIR)/libs/core -name '*.hpp')
 SOURCES_CPP := $(shell find $(SRC_DIR)/libs/core -name '*.cpp')
 OBJECTS_CPP := $(patsubst $(SRC_DIR)/libs/core/%.cpp, $(BUILD_DIR)/libs/core/cpp/%.o, $(SOURCES_CPP))
 
-.PHONY: all libcore clean always
+.PHONY: all libcore clean 
 
-libcore: $(BUILD_DIR)/libcore.a always
+libcore: $(BUILD_DIR)/libcore.a 
 $(BUILD_DIR)/libcore.a: $(OBJECTS_ASM) $(OBJECTS_C) $(OBJECTS_CPP)
-	@echo $(OBJECTS_CPP)
-	@$(AR) rcs $@ $^
+	@$(TARGET_AR) rcs $@ $^
 
-$(BUILD_DIR)/libs/core/asm/%.o: %.asm $(HEADERS_ASM) | always
+$(BUILD_DIR)/libs/core/asm/%.o: %.asm $(HEADERS_ASM) 
+	@mkdir -p $(dir $@)
 	@$(AS) $(ASFLAGS) -o $@ $< 
 
-$(BUILD_DIR)/libs/core/c/%.o: %.c $(HEADERS_C) | always
+$(BUILD_DIR)/libs/core/c/%.o: %.c $(HEADERS_C) 
+	@mkdir -p $(dir $@)
 	@$(TARGET_CC) $(TARGET_CFLAGS) -c -o $@ $<
 
-$(BUILD_DIR)/libs/core/cpp/%.o: %.cpp $(HEADERS_CPP) | always
+$(BUILD_DIR)/libs/core/cpp/%.o: %.cpp $(HEADERS_CPP) 
+	@mkdir -p $(dir $@)
 	@$(TARGET_CPP) $(TARGET_CPPFLAGS) -c -o $@ $<
-
-always:
-	@mkdir -p $(BUILD_DIR)/libs/core/asm
-	@mkdir -p $(BUILD_DIR)/libs/core/c
-	@mkdir -p $(BUILD_DIR)/libs/core/cpp
-	@mkdir -p $(BUILD_DIR)/libs/core/cpp/fs
 
 clean:
 	@rm -rf $(BUILD_DIR)/libs/core

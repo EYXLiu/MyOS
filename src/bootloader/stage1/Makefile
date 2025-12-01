@@ -1,6 +1,3 @@
-BUILD_DIR?=build
-AS?=nasm
-
 .PHONY: all clean
 
 all: stage1

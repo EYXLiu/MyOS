@@ -5,9 +5,12 @@
 #include "memdefs.h"
 #include "memory.h"
 #include "vbe.h"
+#include "memdetect.h"
+#include <boot/bootparams.h>
 
 uint8_t* KernelLoadBuffer = (uint8_t*)MEMORY_LOAD_KERNEL;
 uint8_t* Kernel = (uint8_t*)MEMORY_KERNEL_ADDR;
+BootParams g_BootParams;
 
 typedef void (*KernelStart)();
 
@@ -27,6 +30,12 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive)
         printf("MAIN: fat init error\r\n");
         goto end;
     }
+
+    // load memory
+    g_BootParams.BootDevice = bootDrive;
+    Memory_Detect(&g_BootParams.Memory);
+
+    //for (;;);
 
     // load kernel
     FAT_File* k_fd = FAT_Open(&disk, "/kernel.bin");
@@ -78,7 +87,7 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive)
     */
     
     KernelStart kernelStart = (KernelStart)Kernel;
-    kernelStart();
+    kernelStart(&g_BootParams);
 
 end:
     for (;;);
