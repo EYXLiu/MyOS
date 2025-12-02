@@ -20,6 +20,7 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
     BlockMemInitialize(&__end);
 
     ShellInitialize();
+    ShellRun();
 
 end:
     for (;;);

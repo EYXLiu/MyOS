@@ -42,3 +42,4 @@ static const char kbd_US [128] =
 };
 
 void ShellInitialize();
+void ShellRun();

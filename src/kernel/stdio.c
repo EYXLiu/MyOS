@@ -252,3 +252,7 @@ void debugf(const char* fmt, ...) {
 void debug_buffer(const char* msg, const void* buffer, uint32_t count) {
     fprint_buffer(VFS_FD_DEBUG, msg, buffer, count);
 }
+
+void Clear() {
+    VFS_Clear();
+}

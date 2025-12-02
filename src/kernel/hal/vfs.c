@@ -23,3 +23,7 @@ int VFS_Write(fd_t file, uint8_t* data, size_t size)
         return -1;
     }
 }
+
+void VFS_Clear() {
+    VGA_clrscr();
+}

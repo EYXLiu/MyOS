@@ -11,3 +11,4 @@ typedef int fd_t;
 #define VFS_FD_DEBUG 3
 
 int VFS_Write(fd_t file, uint8_t* data, size_t size);
+void VFS_Clear();

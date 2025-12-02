@@ -18,3 +18,5 @@ void debugc(char c);
 void debugs(const char* str);
 void debugf(const char* fmt, ...);
 void debug_buffer(const char* msg, const void* buffer, uint32_t count);
+
+void Clear();
