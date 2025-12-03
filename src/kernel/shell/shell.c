@@ -56,7 +56,8 @@ void ShellInitialize() {
 }
 
 void ShellRun() {
-    printf("FroggOS> ");
+    char* path = "/";
+    printf("FroggOS%s> ", path);
     for (;;) {
         if (g_KBTail > 0) {
             char c = g_KeyboardBuffer[g_KBTail - 1];
@@ -65,7 +66,7 @@ void ShellRun() {
                 g_KeyboardBuffer[g_KBTail - 1] = 0;
                 ShellPrint(g_KeyboardBuffer);
                 g_KBTail = 0;
-                printf("FroggOS> ");
+                printf("FroggOS%s> ", path);
             }
         }
 

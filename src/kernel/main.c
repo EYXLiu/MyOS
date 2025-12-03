@@ -7,6 +7,8 @@
 #include <boot/bootparams.h>
 #include <mem/block_allocator.h>
 #include <shell/shell.h>
+#include <fat12/fat.h>
+#include <kfat/fat.h>
 
 extern uint8_t __bss_start;
 extern uint8_t __end;
@@ -17,7 +19,13 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
 
     HAL_Initialize();
 
-    BlockMemInitialize(&__end);
+    BlockMem_Initialize(&__end);
+
+    FAT_Initialize(bootParams->Fat12, bootParams->disk);
+    printf("Hello\n");
+    FAT_Ls();
+
+    goto end;
 
     ShellInitialize();
     ShellRun();

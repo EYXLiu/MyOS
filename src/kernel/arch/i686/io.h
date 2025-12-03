@@ -9,3 +9,6 @@ uint8_t __attribute__((cdecl)) i686_DisableInterrupts();
 
 void i686_iowait();
 void __attribute__((cdecl)) i686_Halt();
+
+void __attribute__((cdecl)) i686_outw(uint16_t port, uint16_t value);
+uint16_t __attribute__((cdecl)) i686_inw(uint16_t port);

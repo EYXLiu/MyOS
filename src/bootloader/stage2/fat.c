@@ -7,61 +7,6 @@
 #include "minmax.h"
 #include <stddef.h>
 
-#define SECTOR_SIZE 512
-#define MAX_PATH_SIZE 256
-#define MAX_FILE_HANDLES 10
-#define ROOT_DIRECTORY_HANDLE -1
-
-typedef struct 
-{
-    uint8_t BootJumpInstruction[3];
-    uint8_t OemIdentifier[8];
-    uint16_t BytesPerSector;
-    uint8_t SectorsPerCluster;
-    uint16_t ReservedSectors;
-    uint8_t FatCount;
-    uint16_t DirEntryCount;
-    uint16_t TotalSectors;
-    uint8_t MediaDescriptorType;
-    uint16_t SectorsPerFat;
-    uint16_t SectorsPerTrack;
-    uint16_t Heads;
-    uint32_t HiddenSectors;
-    uint32_t LargeSectorCount;
-
-    // extended boot record
-    uint8_t DriveNumber;
-    uint8_t _Reserved;
-    uint8_t Signature;
-    uint32_t VolumeId;
-    uint8_t VolumeLabel[11];
-    uint8_t SystemId[8];
-
-} __attribute__((packed)) FAT_BootSector;
-
-typedef struct
-{
-    uint8_t Buffer[SECTOR_SIZE];
-    FAT_File Public;
-    bool Opened;
-    uint32_t FirstCluster;
-    uint32_t CurrentCluster;
-    uint32_t CurrentSectorInCluster;
-
-} FAT_FileData;
-
-typedef struct {
-    union 
-    {
-        FAT_BootSector BootSector;
-        uint8_t BootSectorBytes[SECTOR_SIZE];
-    } BS;
-
-    FAT_FileData RootDirectory;
-    FAT_FileData OpenedFiles[MAX_FILE_HANDLES];
-
-} FAT_Data;
-
 static FAT_Data* g_Data;
 static uint8_t* g_Fat = NULL;
 static uint32_t g_DataSectionLba;
@@ -310,4 +255,11 @@ FAT_File* FAT_Open(DISK* disk, const char* path) {
         }
     }
     return current;
+}
+
+FatInfo FAT_GetParams() {
+    FatInfo f;
+    f.FatAddress = (uint32_t)g_Data;
+    f.FatSize= MEMORY_FAT_SIZE;
+    return f;
 }

@@ -11,6 +11,6 @@ struct BlockHeader {
     bool free;
 };
 
-void BlockMemInitialize(uint8_t* __end);
+void BlockMem_Initialize(uint8_t* __end);
 void* KMalloc(size_t size);
 void KFree(void* ptr);

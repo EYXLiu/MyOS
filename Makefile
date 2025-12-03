@@ -64,10 +64,11 @@ mdir: floppy
 	mdir -i $(BUILD_DIR)/floppy.img
 
 #
-# bochs
+# gdb
 # 
 debug: floppy
-	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img -S -s -serial stdio & sleep 1 && gdb -tui -ex "target remote localhost:1234"
+	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img -S -s -serial stdio & sleep 1 && gdb -ex "target remote localhost:1234"
+
 #
 # run
 #

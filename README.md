@@ -21,6 +21,17 @@ To test (in gdb) <br/>
 make debug
 ```
 
+## commands for gdb
+```
+info registers
+print $register
+set $register
+stepi
+nexti
+continue
+break
+```
+
 ## How I got started 
 [OSDev Wiki](https://wiki.osdev.org/Expanded_Main_Page) <br/>
 [x86 Assembly](https://www.felixcloutier.com/x86/) <br/>

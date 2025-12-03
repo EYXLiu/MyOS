@@ -25,11 +25,13 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive)
         printf("MAIN: disk init error\n");
         goto end;
     }
+    g_BootParams.disk = &disk;
 
     if (!FAT_Initialize(&disk)) {
         printf("MAIN: fat init error\r\n");
         goto end;
     }
+    g_BootParams.Fat12 = FAT_GetParams();
 
     // load memory
     g_BootParams.BootDevice = bootDrive;

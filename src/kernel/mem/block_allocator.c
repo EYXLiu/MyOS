@@ -10,7 +10,7 @@ struct BlockHeader* g_BlockHead;
 uintptr_t g_HeapBegin;
 uintptr_t g_HeapEnd;
 
-void BlockMemInitialize(uint8_t* __end) {
+void BlockMem_Initialize(uint8_t* __end) {
     g_HeapBegin = (uintptr_t)__end;
     g_HeapEnd = g_HeapBegin + HEAP_SIZE;
 
