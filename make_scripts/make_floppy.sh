@@ -5,6 +5,8 @@ STAGE1_STAGE2_LOCATION_OFFSET=480
 
 # generate image
 dd if=/dev/zero of="$TARGET" bs=512 count=2880 >/dev/null
+# generate hdd
+dd if=/dev/zero of=build/hdd.img bs=1M count=16
 
 # determine number of reserved sections
 STAGE2_SIZE=$(stat -f "%z" -- "${BUILD_DIR}/stage2.bin")

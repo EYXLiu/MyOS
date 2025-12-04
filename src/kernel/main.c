@@ -9,6 +9,8 @@
 #include <shell/shell.h>
 #include <fat12/fat.h>
 #include <kfat/fat.h>
+#include <arch/i686/page.h>
+#include <arch/i686/ide.h>
 
 extern uint8_t __bss_start;
 extern uint8_t __end;
@@ -21,9 +23,9 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
 
     BlockMem_Initialize(&__end);
 
-    FAT_Initialize(bootParams->Fat12, bootParams->disk);
-    printf("Hello\n");
-    FAT_Ls();
+    //i686_Page_Initialize();
+
+    i686_IDE_Initialize();
 
     goto end;
 

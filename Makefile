@@ -67,13 +67,21 @@ mdir: floppy
 # gdb
 # 
 debug: floppy
-	qemu-system-i386 -fda $(BUILD_DIR)/floppy.img -S -s -serial stdio & sleep 1 && gdb -ex "target remote localhost:1234"
+	@qemu-system-i386 \
+		-m 512M \
+		-fda $(BUILD_DIR)/floppy.img \
+		-hda $(BUILD_DIR)/hdd.img \
+		-serial stdio -d int
 
 #
 # run
 #
 run: floppy
-	@qemu-system-i386 -debugcon stdio -fda $(BUILD_DIR)/floppy.img
+	@qemu-system-i386 \
+		-m 512M \
+		-debugcon stdio \
+		-fda $(BUILD_DIR)/floppy.img \
+		-hda $(BUILD_DIR)/hdd.img 
 
 #
 # clean
