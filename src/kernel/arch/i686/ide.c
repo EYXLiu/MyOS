@@ -27,15 +27,6 @@ void i686_Delay_400ns() {
     i686_inb(IDE_DATA);
 }
 
-void i686_IDE_Initialize() {
-    __asm__ volatile ("cli");
-    i686_outb(0x3F6, 0x02); 
-    uint8_t mask = i686_inb(0xA1);
-    i686_outb(0xA1, mask | (1 << 6));
-    uint8_t master = i686_inb(0x21);
-    i686_outb(0x21, master | (1 << 2));
-}
-
 void i686_IDE_Read(uint32_t lba, uint16_t* buffer) {
     i686_IDE_WaitBSY();
 
