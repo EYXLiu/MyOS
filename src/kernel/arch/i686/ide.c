@@ -30,18 +30,18 @@ void i686_Delay_400ns() {
 void i686_IDE_Read(uint32_t lba, uint16_t* buffer) {
     i686_IDE_WaitBSY();
 
-    i686_outb(IDE_SECTOR_CNT, 1);               // Read 1 sector
-    i686_outb(IDE_LBA_LOW,  (uint8_t)(lba & 0xFF));
-    i686_outb(IDE_LBA_MID,  (uint8_t)((lba >> 8) & 0xFF));
+    i686_outb(IDE_SECTOR_CNT, 1); 
+    i686_outb(IDE_LBA_LOW, (uint8_t)(lba & 0xFF));
+    i686_outb(IDE_LBA_MID, (uint8_t)((lba >> 8) & 0xFF));
     i686_outb(IDE_LBA_HI, (uint8_t)((lba >> 16) & 0xFF));
-    i686_outb(IDE_DRIVE,    0xE0 | ((lba >> 24) & 0x0F)); // 0xE0 = master drive, LBA mode
+    i686_outb(IDE_DRIVE, 0xE0 | ((lba >> 24) & 0x0F)); 
     i686_Delay_400ns();
 
     i686_outb(IDE_COMMAND, IDE_CMD_READ);
 
     i686_IDE_WaitDRQ();
 
-    // Read 256 words (512 bytes) from data port
+    // read 256 words (512 bytes) from data port
     for (int i = 0; i < 256; i++) {
         buffer[i] = i686_inw(IDE_DATA);
     }
@@ -50,11 +50,11 @@ void i686_IDE_Read(uint32_t lba, uint16_t* buffer) {
 void i686_IDE_Write(uint32_t lba, const uint16_t* buffer) {
     i686_IDE_WaitBSY();
 
-    i686_outb(IDE_SECTOR_CNT, 1);               // Read 1 sector
-    i686_outb(IDE_LBA_LOW,  (uint8_t)(lba & 0xFF));
-    i686_outb(IDE_LBA_MID,  (uint8_t)((lba >> 8) & 0xFF));
+    i686_outb(IDE_SECTOR_CNT, 1);
+    i686_outb(IDE_LBA_LOW, (uint8_t)(lba & 0xFF));
+    i686_outb(IDE_LBA_MID, (uint8_t)((lba >> 8) & 0xFF));
     i686_outb(IDE_LBA_HI, (uint8_t)((lba >> 16) & 0xFF));
-    i686_outb(IDE_DRIVE,    0xE0 | ((lba >> 24) & 0x0F)); // 0xE0 = master drive, LBA mode
+    i686_outb(IDE_DRIVE, 0xE0 | ((lba >> 24) & 0x0F));
     i686_Delay_400ns();
 
     i686_outb(IDE_COMMAND, IDE_CMD_WRITE);

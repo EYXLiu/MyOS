@@ -27,5 +27,3 @@ printf "%x" ${STAGE2_SECTORS} | xxd -r -p | dd of=$TARGET conv=notrunc bs=1 seek
 
 # files
 mcopy -i "$TARGET" "${BUILD_DIR}/kernel.bin" "::kernel.bin"
-mcopy -i "$TARGET" text.txt "::text.txt"
-mmd -i "$TARGET" "::dir"
