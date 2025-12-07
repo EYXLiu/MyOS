@@ -1,6 +1,7 @@
 #include "fat.h"
 #include <stdio.h>
 #include <memory.h>
+#include <string.h>
 
 void FS_LS(Directory* dir) {
     uint8_t buffer[FS_BLOCK_SIZE];
@@ -11,4 +12,18 @@ void FS_LS(Directory* dir) {
         printf("%s ", entry.name);
     }
     printf("\b\n");
+}
+
+void FS_CD(Directory* dir, const char* entry) {
+    uint8_t buffer[FS_BLOCK_SIZE];
+    for (int i = 0; i < dir->count; i++) {
+        FS_ReadBlock(dir->entries[i], buffer);
+        Directory candidate;
+        memcpy(&candidate, buffer, sizeof(Directory));
+        if (memcmp(candidate.name, entry, strlen(entry) + 1) == 0) {
+            memcpy(dir, &candidate, sizeof(Directory));
+            return;
+        }
+    }
+    printf("Directory not found\n");
 }

@@ -60,3 +60,4 @@ void FS_FileRead();
 void FS_FileWrite();
 
 void FS_LS(Directory* dir);
+void FS_CD(Directory* dir, const char* entry);

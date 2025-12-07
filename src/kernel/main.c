@@ -34,6 +34,12 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
     FS_DirDelete(&g_Dir, 1);
     FS_DirCreate(&g_Dir, "test3");
     FS_LS(&g_Dir);
+    printf("LS\n");
+    FS_CD(&g_Dir, "test");
+    printf("CD\n");
+    FS_LS(&g_Dir);
+    printf("LS\n");
+    printf("%s\n", g_Dir.name);
 
     goto end;
 
