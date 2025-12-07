@@ -53,7 +53,7 @@ uint32_t FS_Initialize();
 uint32_t FS_Load();
 
 void FS_DirCreate(Directory* parent, const char* name);
-void FS_DirDelete(Directory* parent, uint32_t index);
+void FS_DirDelete(Directory* parent, const char* entry);
 
 void FS_FileCreate();
 void FS_FileDelete();

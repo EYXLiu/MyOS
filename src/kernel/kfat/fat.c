@@ -109,7 +109,7 @@ void FS_DirCreate(Directory* parent, const char* name) {
 
     Directory dir;
     memset(&dir, 0, sizeof(Directory));
-    strncpy(dir.name, name, 31);
+    strncpy(dir.name, name, sizeof(dir.name) - 1);
     dir.count = 0;
     dir.block = new_block;
     dir.parent = parent->block;
@@ -118,6 +118,10 @@ void FS_DirCreate(Directory* parent, const char* name) {
     memcpy(buffer, &dir, sizeof(Directory));
     FS_WriteBlock(new_block, buffer);
 
+    if (parent->count >= FS_MAX_ENTRIES) {
+        printf("FS: parent folder full\n");
+        return;
+    }
     parent->entries[parent->count++] = new_block;
 
     memcpy(buffer, parent, sizeof(Directory));
@@ -127,27 +131,32 @@ void FS_DirCreate(Directory* parent, const char* name) {
     FS_SaveBat(new_block);
 }
 
-void FS_DirDelete(Directory* parent, uint32_t index) {
-    uint32_t block = parent->entries[index];
+void FS_DirDelete(Directory* parent, const char* entry) {
     uint8_t buffer[FS_BLOCK_SIZE];
-    FS_ReadBlock(block, buffer);
-    Directory* dir = (Directory*)buffer;
 
-    if (dir->count > 0) {
-        printf("FS: directory is not empty\n");
-        return;
+    for (int i = 0; i < parent->count; i++) {
+        FS_ReadBlock(parent->entries[i], buffer);
+        Directory candidate;
+        memcpy(&candidate, buffer, sizeof(Directory));
+        if (memcmp(candidate.name, entry, strlen(entry) + 1) == 0) {
+            if (candidate.count > 0) {
+                printf("FS: directory is not empty\n");
+                return;
+            }
+            FS_BatClear(candidate.block);
+            FS_SaveBat(candidate.block);
+        
+            for (uint32_t j = i; j < parent->count - 1; j++)
+                parent->entries[j] = parent->entries[j + 1];
+            parent->count--;
+        
+            memset(buffer, 0, sizeof(buffer));
+            memcpy(buffer, parent, sizeof(Directory));
+            FS_WriteBlock(parent->block, buffer);
+            return;
+        }   
     }
-
-    FS_BatClear(block);
-    FS_SaveBat(block);
-
-    for (uint32_t i = index; i < parent->count - 1; i++)
-        parent->entries[i] = parent->entries[i + 1];
-    parent->count--;
-
-    memset(buffer, 0, sizeof(buffer));
-    memcpy(buffer, parent, sizeof(Directory));
-    FS_WriteBlock(parent->block, buffer);
+    printf("FS: directory not found\n");
 }
 
 void FS_FileCreate() {

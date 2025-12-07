@@ -19,7 +19,7 @@ void FS_CD(Directory* dir, const char* entry) {
     
     if (memcmp("..", entry, 3) == 0) {
         if (dir->parent == 0xFFFFFFFF) {
-            printf("Folder does not exist\n");
+            printf("FS: folder does not exist\n");
             return;
         }
         FS_ReadBlock(dir->parent, buffer);
@@ -36,5 +36,5 @@ void FS_CD(Directory* dir, const char* entry) {
             return;
         }
     }
-    printf("Directory not found\n");
+    printf("FS: directory not found\n");
 }
