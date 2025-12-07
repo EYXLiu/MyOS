@@ -8,12 +8,14 @@
 #include <mem/block_allocator.h>
 #include <shell/shell.h>
 #include <fat12/fat.h>
-#include <kfat/fat.h>
 #include <arch/i686/page.h>
 #include <arch/i686/ide.h>
+#include <kfat/fat.h>
 
 extern uint8_t __bss_start;
 extern uint8_t __end;
+
+static Directory g_Dir;
 
 void __attribute__((section(".entry"))) kstart(BootParams* bootParams) 
 {
@@ -25,18 +27,16 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
 
     //i686_Page_Initialize();
 
-    uint16_t buffer[256];
-    for (int i = 0; i < 256; i++) buffer[i] = i;
-    i686_IDE_Write(0, buffer);
-    for (int i = 0; i < 256; i++) buffer[i] = 0;
-    i686_IDE_Read(0, buffer);
-    printf("First 16 bytes of sector 0:\n");
-    for (int i = 0; i < 8; i++) {
-        printf("%u ", buffer[i]);
-    }
-    printf("\n");
+    int root = FS_Initialize();
+    FS_SetDirectory(&g_Dir, root);
+    FS_DirCreate(&g_Dir, "test");
+    FS_DirCreate(&g_Dir, "test2");
+    FS_DirDelete(&g_Dir, 1);
+    FS_DirCreate(&g_Dir, "test3");
+    FS_LS(&g_Dir);
 
     goto end;
+
 
     ShellInitialize();
     ShellRun();

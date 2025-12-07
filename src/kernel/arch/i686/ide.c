@@ -27,7 +27,7 @@ void i686_Delay_400ns() {
     i686_inb(IDE_DATA);
 }
 
-void i686_IDE_Read(uint32_t lba, uint16_t* buffer) {
+void i686_IDE_Read(uint32_t lba, uint8_t* buffer) {
     i686_IDE_WaitBSY();
 
     i686_outb(IDE_SECTOR_CNT, 1); 
@@ -41,13 +41,13 @@ void i686_IDE_Read(uint32_t lba, uint16_t* buffer) {
 
     i686_IDE_WaitDRQ();
 
-    // read 256 words (512 bytes) from data port
+    // read 1 block (512 bytes) from data port
     for (int i = 0; i < 256; i++) {
         buffer[i] = i686_inw(IDE_DATA);
     }
 }
 
-void i686_IDE_Write(uint32_t lba, const uint16_t* buffer) {
+void i686_IDE_Write(uint32_t lba, const uint8_t* buffer) {
     i686_IDE_WaitBSY();
 
     i686_outb(IDE_SECTOR_CNT, 1);
@@ -61,6 +61,7 @@ void i686_IDE_Write(uint32_t lba, const uint16_t* buffer) {
 
     i686_IDE_WaitDRQ();
 
+    // write 1 block (512 bytes) from data port
     for (int i = 0; i < 256; i++) {
         i686_outw(IDE_DATA, buffer[i]);
     }
