@@ -40,6 +40,9 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
     FS_LS(&g_Dir);
     printf("LS\n");
     printf("%s\n", g_Dir.name);
+    FS_CD(&g_Dir, "..");
+    FS_LS(&g_Dir);
+    FS_CD(&g_Dir, "..");
 
     goto end;
 

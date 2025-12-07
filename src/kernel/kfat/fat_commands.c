@@ -16,6 +16,17 @@ void FS_LS(Directory* dir) {
 
 void FS_CD(Directory* dir, const char* entry) {
     uint8_t buffer[FS_BLOCK_SIZE];
+    
+    if (memcmp("..", entry, 3) == 0) {
+        if (dir->parent == 0xFFFFFFFF) {
+            printf("Folder does not exist\n");
+            return;
+        }
+        FS_ReadBlock(dir->parent, buffer);
+        memcpy(dir, buffer, sizeof(Directory));
+        return;
+    }
+
     for (int i = 0; i < dir->count; i++) {
         FS_ReadBlock(dir->entries[i], buffer);
         Directory candidate;

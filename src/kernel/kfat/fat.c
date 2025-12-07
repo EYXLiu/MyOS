@@ -73,7 +73,8 @@ uint32_t FS_Initialize() {
     Directory root = {
         .name = "~",
         .block = g_Superblock.root_dir_block,
-        .count = 0
+        .count = 0,
+        .parent = 0xFFFFFFFF
     };
     
     memset(buffer, 0, sizeof(buffer));
@@ -111,6 +112,7 @@ void FS_DirCreate(Directory* parent, const char* name) {
     strncpy(dir.name, name, 31);
     dir.count = 0;
     dir.block = new_block;
+    dir.parent = parent->block;
 
     uint8_t buffer[FS_BLOCK_SIZE];
     memcpy(buffer, &dir, sizeof(Directory));

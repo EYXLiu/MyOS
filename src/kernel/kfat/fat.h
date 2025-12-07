@@ -11,7 +11,7 @@
 #define FS_SUPERBLOCK_LBA 0
 #define FS_BAT_LBA 1
 #define FS_DATA_LBA 9
-#define FS_MAX_ENTRIES 118 // max that fits into a blocksize
+#define FS_MAX_ENTRIES 117 // max that fits into a blocksize
 
 typedef struct {
     uint32_t magic;
@@ -36,6 +36,7 @@ typedef struct {
     char name[32];
     uint32_t count;
     uint32_t block;
+    uint32_t parent;
     uint32_t entries[FS_MAX_ENTRIES];
 } __attribute__((packed)) Directory;
 
