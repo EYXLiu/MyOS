@@ -33,26 +33,13 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
     FS_DirCreate(&g_Dir, "test");
     printf("Dir create test2\n");
     FS_DirCreate(&g_Dir, "test2");
-    printf("Dir delete test2\n");
-    FS_DirDelete(&g_Dir, "test2");
-    printf("Dir delete test3\n");
-    FS_DirDelete(&g_Dir, "test3");
-    printf("Dir create test3\n");
-    FS_DirCreate(&g_Dir, "test3");
-    printf("LS\n");
+    printf("Dir create test2\n");
+    FS_DirCreate(&g_Dir, "test2");
+    printf("File create testfile\n");
+    FS_FileCreate(&g_Dir, "testfile");
+    printf("File create testfile\n");
+    FS_FileCreate(&g_Dir, "testfile");
     FS_LS(&g_Dir);
-    printf("CD test\n");
-    FS_CD(&g_Dir, "test");
-    printf("LS\n");
-    FS_LS(&g_Dir);
-    printf("printf name\n");
-    printf("%s\n", g_Dir.name);
-    printf("CD ..\n");
-    FS_CD(&g_Dir, "..");
-    printf("LS\n");
-    FS_LS(&g_Dir);
-    printf("CD ..\n");
-    FS_CD(&g_Dir, "..");
 
     goto end;
 

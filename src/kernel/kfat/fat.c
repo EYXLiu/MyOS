@@ -100,9 +100,47 @@ uint32_t FS_Load() {
     return g_Superblock.root_dir_block;
 }
 
+void FS_SaveDirectory(Directory* dir) {
+    uint8_t buffer[FS_BLOCK_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+    memcpy(buffer, dir, sizeof(Directory));
+    FS_WriteBlock(dir->block, buffer);
+}
+
+bool FS_Exists(Directory* parent, const char* name, uint8_t type) {
+    uint8_t buffer[FS_BLOCK_SIZE];
+    for (int i = 0; i < parent->count; i++) {
+        FS_ReadBlock(parent->entries[i], buffer);
+        if (buffer[0] == type) {
+            if (type == 0) {
+                Directory entry;
+                memcpy(&entry, buffer, sizeof(Directory));
+                if (strncmp(entry.name, name, strlen(name) + 1) == 0)
+                    return true;
+            } else {
+                FileEntry entry;
+                memcpy(&entry, buffer, sizeof(FileEntry));
+                if (strncmp(entry.name, name, strlen(name + 1)) == 0) 
+                    return true;
+            }
+        }
+    }
+    return false;
+}
+
 void FS_DirCreate(Directory* parent, const char* name) {
-    uint32_t new_block = FS_BatFindFreeBlock();
-    if (new_block == 0xFFFFFFFF) {
+    if (FS_Exists(parent, name, 0)) {
+        printf("FS: directory already exists\n");
+        return;
+    }
+
+    if (parent->count >= FS_MAX_ENTRIES) {
+        printf("FS: directory full\n");
+        return;
+    }
+
+    uint32_t header = FS_BatFindFreeBlock();
+    if (header == 0xFFFFFFFF) {
         printf("FS: disk full\n");
         return;
     }
@@ -110,35 +148,30 @@ void FS_DirCreate(Directory* parent, const char* name) {
     Directory dir;
     memset(&dir, 0, sizeof(Directory));
     strncpy(dir.name, name, sizeof(dir.name) - 1);
+    dir.type = 0;
     dir.count = 0;
-    dir.block = new_block;
+    dir.block = header;
     dir.parent = parent->block;
 
     uint8_t buffer[FS_BLOCK_SIZE];
     memcpy(buffer, &dir, sizeof(Directory));
-    FS_WriteBlock(new_block, buffer);
+    FS_WriteBlock(header, buffer);
 
-    if (parent->count >= FS_MAX_ENTRIES) {
-        printf("FS: parent folder full\n");
-        return;
-    }
-    parent->entries[parent->count++] = new_block;
+    parent->entries[parent->count++] = header;
+    FS_SaveDirectory(parent);
 
-    memcpy(buffer, parent, sizeof(Directory));
-    FS_WriteBlock(parent->block, buffer);
-
-    FS_BatSet(new_block);
-    FS_SaveBat(new_block);
+    FS_BatSet(header);
+    FS_SaveBat(header);
 }
 
-void FS_DirDelete(Directory* parent, const char* entry) {
+void FS_DirDelete(Directory* parent, const char* name) {
     uint8_t buffer[FS_BLOCK_SIZE];
 
     for (int i = 0; i < parent->count; i++) {
         FS_ReadBlock(parent->entries[i], buffer);
         Directory candidate;
         memcpy(&candidate, buffer, sizeof(Directory));
-        if (memcmp(candidate.name, entry, strlen(entry) + 1) == 0) {
+        if (memcmp(candidate.name, name, strlen(name) + 1) == 0) {
             if (candidate.count > 0) {
                 printf("FS: directory is not empty\n");
                 return;
@@ -159,18 +192,59 @@ void FS_DirDelete(Directory* parent, const char* entry) {
     printf("FS: directory not found\n");
 }
 
-void FS_FileCreate() {
-    
+void FS_FileCreate(Directory* parent, const char* name) {
+    if (FS_Exists(parent, name, 1)) {
+        printf("FS: file already exists\n");
+        return;
+    }
+
+    if (parent->count >= FS_MAX_ENTRIES) {
+        printf("FS: directory full\n");
+        return;
+    }
+
+    int header = FS_BatFindFreeBlock();
+    if (header == 0xFFFFFFFF) {
+        printf("FS: disk full\n");
+        return;
+    }
+
+    FileEntry fe;
+    memset(&fe, 0, sizeof(FileEntry));
+    strncpy(fe.name, name, sizeof(fe.name) - 1);
+    fe.type = 1;
+    fe.size = 0;
+    fe.first_block = 0xFFFFFFFF;
+    fe.block = header;
+
+    uint8_t buffer[FS_BLOCK_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+    memcpy(buffer, &fe, sizeof(FileEntry));
+    FS_WriteBlock(header, buffer);
+
+    parent->entries[parent->count++] = header;
+    FS_SaveDirectory(parent);
+
+    FS_BatSet(header);
+    FS_SaveBat(header);
 }
 
-void FS_FileDelete() {
+void FS_FileDelete(Directory* parent, const char* name) {
 
 }
 
-void FS_FileRead() {
+void FS_FileRead(Directory* parent, const char* name) {
 
 }
 
-void FS_FileWrite() {
+void FS_FileWrite(Directory* parent, const char* name) {
+
+}
+
+void FS_FileReadBuffer(Directory* parent, const char* name, char* buffer) {
+
+}
+
+void FS_FileWriteBuffer(Directory* parent, const char* name, const char* buffer) {
 
 }

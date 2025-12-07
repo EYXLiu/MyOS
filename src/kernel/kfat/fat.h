@@ -11,7 +11,8 @@
 #define FS_SUPERBLOCK_LBA 0
 #define FS_BAT_LBA 1
 #define FS_DATA_LBA 9
-#define FS_MAX_ENTRIES 117 // max that fits into a blocksize
+#define FS_MAX_ENTRIES 116 // max that fits into a blocksize
+#define FS_FILE_MAX_SIZE 504 // max that fits into a fileheader
 
 typedef struct {
     uint32_t magic;
@@ -22,17 +23,21 @@ typedef struct {
 } __attribute__((packed)) Superblock;
 
 typedef struct {
+    uint8_t type;
     char name[32];
     uint32_t size;
     uint32_t first_block;
-    uint8_t type;
+    uint32_t block;
 } __attribute__((packed)) FileEntry;
 
 typedef struct {
     uint32_t next_block;
-} __attribute__((packed)) BlockHeader;
+    uint32_t block;
+    char data[FS_FILE_MAX_SIZE];
+} __attribute__((packed)) FileHeader;
 
 typedef struct {
+    uint8_t type;
     char name[32];
     uint32_t count;
     uint32_t block;
@@ -53,12 +58,14 @@ uint32_t FS_Initialize();
 uint32_t FS_Load();
 
 void FS_DirCreate(Directory* parent, const char* name);
-void FS_DirDelete(Directory* parent, const char* entry);
+void FS_DirDelete(Directory* parent, const char* name);
 
-void FS_FileCreate();
-void FS_FileDelete();
-void FS_FileRead();
-void FS_FileWrite();
+void FS_FileCreate(Directory* parent, const char* name);
+void FS_FileDelete(Directory* parent, const char* name);
+void FS_FileRead(Directory* parent, const char* name);
+void FS_FileWrite(Directory* parent, const char* name);
+void FS_FileReadBuffer(Directory* parent, const char* name, char* buffer);
+void FS_FileWriteBuffer(Directory* parent, const char* name, const char* buffer);
 
 void FS_LS(Directory* dir);
 void FS_CD(Directory* dir, const char* entry);
