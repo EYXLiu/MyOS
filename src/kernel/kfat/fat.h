@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define FS_MAGIC 0xD0660
+#define FS_MAGIC 0x0660D
 #define FS_BLOCK_SIZE 512
 
 #define FS_TOTAL_BLOCKS 32768
@@ -51,7 +51,7 @@ void FS_BatSet(uint32_t block);
 void FS_BatClear(uint32_t block);
 bool FS_BatIsSet(uint32_t block);
 int FS_BatFindFreeBlock();
-void FS_SaveBat(uint32_t block);
+void FS_BatSave(uint32_t block);
 void FS_SetDirectory(Directory* emptyDir, uint32_t block);
 
 uint32_t FS_Initialize();
@@ -60,12 +60,13 @@ uint32_t FS_Load();
 void FS_DirCreate(Directory* parent, const char* name);
 void FS_DirDelete(Directory* parent, const char* name);
 
+FileEntry FS_FindFile(Directory* parent, const char* name);
+
 void FS_FileCreate(Directory* parent, const char* name);
 void FS_FileDelete(Directory* parent, const char* name);
-void FS_FileRead(Directory* parent, const char* name);
-void FS_FileWrite(Directory* parent, const char* name);
-void FS_FileReadBuffer(Directory* parent, const char* name, char* buffer);
-void FS_FileWriteBuffer(Directory* parent, const char* name, const char* buffer);
+void FS_FilePrint(Directory* parent, const char* name);
+void FS_FileWrite(Directory* parent, const char* name, const void* buffer);
+void FS_FileAppend(Directory* parent, const char* name, const void* buffer);
 
 void FS_LS(Directory* dir);
 void FS_CD(Directory* dir, const char* entry);
