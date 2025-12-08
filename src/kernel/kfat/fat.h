@@ -2,6 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #define FS_MAGIC 0x0660D
 #define FS_BLOCK_SIZE 512
@@ -12,7 +13,7 @@
 #define FS_BAT_LBA 1
 #define FS_DATA_LBA 9
 #define FS_MAX_ENTRIES 116 // max that fits into a blocksize
-#define FS_FILE_MAX_SIZE 504 // max that fits into a fileheader
+#define FS_FILE_MAX_SIZE 500 // max that fits into a fileheader
 
 typedef struct {
     uint32_t magic;
@@ -25,7 +26,6 @@ typedef struct {
 typedef struct {
     uint8_t type;
     char name[32];
-    uint32_t size;
     uint32_t first_block;
     uint32_t block;
 } __attribute__((packed)) FileEntry;
@@ -33,6 +33,7 @@ typedef struct {
 typedef struct {
     uint32_t next_block;
     uint32_t block;
+    uint32_t size;
     char data[FS_FILE_MAX_SIZE];
 } __attribute__((packed)) FileHeader;
 
@@ -50,7 +51,7 @@ void FS_WriteBlock(uint32_t block, const void* buffer);
 void FS_BatSet(uint32_t block);
 void FS_BatClear(uint32_t block);
 bool FS_BatIsSet(uint32_t block);
-int FS_BatFindFreeBlock();
+uint32_t FS_BatFindFreeBlock();
 void FS_BatSave(uint32_t block);
 void FS_SetDirectory(Directory* emptyDir, uint32_t block);
 
@@ -65,8 +66,9 @@ FileEntry FS_FindFile(Directory* parent, const char* name);
 void FS_FileCreate(Directory* parent, const char* name);
 void FS_FileDelete(Directory* parent, const char* name);
 void FS_FilePrint(Directory* parent, const char* name);
-void FS_FileWrite(Directory* parent, const char* name, const void* buffer);
-void FS_FileAppend(Directory* parent, const char* name, const void* buffer);
+void FS_FileClear(Directory* parent, const char* name);
+void FS_FileWrite(Directory* parent, const char* name, const void* buffer, size_t bytes);
+void FS_FileAppend(Directory* parent, const char* name, const void* buffer, size_t bytes);
 
 void FS_LS(Directory* dir);
 void FS_CD(Directory* dir, const char* entry);

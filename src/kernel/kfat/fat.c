@@ -9,8 +9,10 @@
 #define FILE_TYPE_FILE 1
 #define FILE_TYPE_DIR 2
 
+#define FS_BAT_TOTAL (FS_BAT_BLOCKS * FS_BLOCK_SIZE)
+
 static Superblock g_Superblock;
-static uint8_t g_Bat[FS_BAT_BLOCKS * FS_BLOCK_SIZE];
+static uint8_t g_Bat[FS_BAT_TOTAL];
 
 void FS_ReadBlock(uint32_t block, void* buffer) {
     i686_IDE_Read(block, (uint8_t*)buffer);
@@ -32,10 +34,11 @@ bool FS_BatIsSet(uint32_t block) {
     return g_Bat[block / 8] & (1 << (block % 8));
 }
 
-int FS_BatFindFreeBlock() {
-    uint32_t i = 0;
-    while (FS_BatIsSet(i) && i != 0xFFFFFFFF) i++;
-    return i;
+uint32_t FS_BatFindFreeBlock() {
+    for (uint32_t i = 0; i < FS_BAT_TOTAL; i++) {
+        if (!FS_BatIsSet(i)) return i;
+    }
+    return 0xFFFFFFFF;
 }
 
 void FS_BatSave(uint32_t block) {
@@ -212,6 +215,7 @@ FileEntry FS_FindFile(Directory* parent, const char* name) {
         }
     }
     fe.type = FILE_TYPE_NONE;
+    fe.first_block = 0xFFFFFFFF;
     return fe;
 }
 
@@ -227,7 +231,7 @@ void FS_FileCreate(Directory* parent, const char* name) {
         return;
     }
 
-    int header = FS_BatFindFreeBlock();
+    uint32_t header = FS_BatFindFreeBlock();
     if (header == 0xFFFFFFFF) {
         printf("FS: disk full\n");
         return;
@@ -237,7 +241,6 @@ void FS_FileCreate(Directory* parent, const char* name) {
     memset(&fe, 0, sizeof(FileEntry));
     strncpy(fe.name, name, sizeof(fe.name) - 1);
     fe.type = FILE_TYPE_FILE;
-    fe.size = 0;
     fe.first_block = 0xFFFFFFFF;
     fe.block = header;
 
@@ -268,21 +271,120 @@ void FS_FileBlockDelete(uint32_t block) {
 
 void FS_FileDelete(Directory* parent, const char* name) {
     FileEntry fe = FS_FindFile(parent, name);
+    if (fe.type == 0) {
+        printf("FS: not a file\n");
+        return;
+    }
     FS_BatClear(fe.block);
     FS_BatSave(fe.block);
     FS_FileBlockDelete(fe.first_block);
 }
 
+void FS_FileBlockPrint(uint32_t block) {
+    if (block == 0xFFFFFFFF) return;
+
+    uint8_t buffer[FS_BLOCK_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+    FS_ReadBlock(block, buffer);
+    FileHeader fh;
+    memcpy(&fh, buffer, sizeof(FileHeader));
+    printf("%s", fh.data);
+    FS_FileBlockPrint(fh.next_block);
+}
+
 void FS_FilePrint(Directory* parent, const char* name) {
     FileEntry fe = FS_FindFile(parent, name);
+    if (fe.type == 0) {
+        printf("FS: not a file\n");
+        return;
+    }
+    FS_FileBlockPrint(fe.first_block);
+}
+
+void FS_FileClear(Directory* parent, const char* name) {
+    FileEntry fe = FS_FindFile(parent, name);
+    if (fe.type != FILE_TYPE_FILE) {
+        printf("FS: not a file\n");
+        return;
+    }
+    FS_FileBlockDelete(fe.first_block);
+    fe.first_block = 0xFFFFFFFF;
+}
+
+void FS_SaveEntry(FileEntry* fe) {
+    uint8_t buffer[FS_BLOCK_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+    memcpy(buffer, fe, sizeof(FileEntry));
+    FS_WriteBlock(fe->block, buffer);
+}
+
+void FS_SaveFile(FileHeader* fh) {
+    uint8_t buffer[FS_BLOCK_SIZE];
+    memset(buffer, 0, sizeof(buffer));
+    memcpy(buffer, fh, sizeof(FileHeader));
+    FS_WriteBlock(fh->block, buffer);
+}
+
+void FS_FileWrite(Directory* parent, const char* name, const void* buffer, size_t bytes) {
+    FS_FileClear(parent, name);
+    FS_FileAppend(parent, name, buffer, bytes);
+}
+
+void FS_FileAppend(Directory* parent, const char* name, const void* buffer, size_t bytes) {
+    const uint8_t* p = buffer;
+
+    FileEntry fe = FS_FindFile(parent, name);
+    if (fe.type != FILE_TYPE_FILE) {
+        printf("FS: not a file\n");
+        return;
+    }
+    FileHeader fh; 
+    uint8_t buf[FS_BLOCK_SIZE];
+    uint32_t header;
+
+    if (fe.first_block == 0xFFFFFFFF) {
+        header = FS_BatFindFreeBlock();
+        FS_BatSet(header);
+        FS_BatSave(header);
+        fh.block = header;
+        fh.next_block = 0xFFFFFFFF;
+        fh.size = 0;
+        memset(fh.data, 0, sizeof(fh.data));
+
+        fe.first_block = header;
+        FS_SaveEntry(&fe);
+    } else {
+        header = fe.first_block;
+        while (header != 0xFFFFFFFF) {
+            FS_ReadBlock(header, buf);
+            memcpy(&fh, buf, sizeof(FileHeader));
+            header = fh.next_block;
+        }
+    }
     
-}
+    while (bytes > 0) {
+        uint32_t fs = FS_FILE_MAX_SIZE - fh.size;
+        if (fs == 0) {
+            header = FS_BatFindFreeBlock();
+            FS_BatSet(header);
+            FS_BatSave(header);
 
-void FS_FileWrite(Directory* parent, const char* name, const void* buffer) {
-    FileEntry fe = FS_FindFile(parent, name);
-}
+            fh.next_block = header;
+            FS_SaveFile(&fh);
 
-void FS_FileAppend(Directory* parent, const char* name, const void* buffer) {
-    FileEntry fe = FS_FindFile(parent, name);
+            memset(&fh, 0, sizeof(FileHeader));
+            fh.block = header;
+            fh.next_block = 0xFFFFFFFF;
+            fs = FS_FILE_MAX_SIZE;
+        }
 
+        uint32_t chunk = bytes > fs ? fs : bytes;
+        memcpy(&fh.data[fh.size], p, chunk);
+
+        fh.size += chunk;
+        p += chunk;
+        bytes -= chunk;
+
+        FS_SaveFile(&fh);
+    } 
 }

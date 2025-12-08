@@ -27,18 +27,23 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
 
     //i686_Page_Initialize();
 
-    int root = FS_Initialize();
+    uint32_t root = FS_Initialize();
     FS_SetDirectory(&g_Dir, root);
-    printf("Dir create test\n");
-    FS_DirCreate(&g_Dir, "test");
-    printf("Dir create test2\n");
-    FS_DirCreate(&g_Dir, "test2");
-    printf("Dir create test2\n");
-    FS_DirCreate(&g_Dir, "test2");
+
     printf("File create testfile\n");
     FS_FileCreate(&g_Dir, "testfile");
-    printf("File create testfile\n");
-    FS_FileCreate(&g_Dir, "testfile");
+    printf("File write testfile hello\n");
+    FS_FileWrite(&g_Dir, "testfile", "hello", 5);
+    printf("File LS\n");
+    FS_LS(&g_Dir);
+    printf("File read testfile\n");
+    FS_FilePrint(&g_Dir, "testfile");
+
+    printf("File append testfile hello\n");
+    FS_FileAppend(&g_Dir, "testfile", "hello", 5);
+    printf("File read testfile\n");
+    FS_FilePrint(&g_Dir, "testfile");
+    printf("File done\n");
     FS_LS(&g_Dir);
 
     goto end;
