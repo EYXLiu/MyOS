@@ -41,6 +41,10 @@ Tech Stack: C, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [ ] Vim  
 - **Visuals**
   - [x] Basic VGA (turned off for now)
+- **Emulators**
+  - [x] QEMU
+  - [ ] GDB (need to change from .img to .elf)
+  - [ ] Bochs
 
 
 ## QEMU Commands
