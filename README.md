@@ -1,4 +1,5 @@
 # Custom OS
+Tech Stack: C, Assembly, Make, Qemu, GDB, Bochs, Bash
 
 ## Features
 - **Core Systems**
