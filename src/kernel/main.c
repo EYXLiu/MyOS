@@ -11,11 +11,10 @@
 #include <arch/i686/page.h>
 #include <arch/i686/ide.h>
 #include <kfat/fat.h>
+#include <string.h>
 
 extern uint8_t __bss_start;
 extern uint8_t __end;
-
-static Directory g_Dir;
 
 void __attribute__((section(".entry"))) kstart(BootParams* bootParams) 
 {
@@ -28,7 +27,9 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
     //i686_Page_Initialize();
 
     uint32_t root = FS_Initialize();
-    FS_SetDirectory(&g_Dir, root);
+    Directory dir;
+    FS_SetDirectory(&dir, root);
+/*
 
     printf("File create testfile\n");
     FS_FileCreate(&g_Dir, "testfile");
@@ -47,10 +48,10 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
     FS_LS(&g_Dir);
 
     goto end;
+*/
 
-
-    ShellInitialize();
-    ShellRun();
+    Shell_Initialize(&dir);
+    Shell_Run();
 
 end:
     for (;;);

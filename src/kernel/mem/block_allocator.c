@@ -25,11 +25,13 @@ void BlockMem_Initialize(uint8_t* __end) {
 }
 
 void* KMalloc(size_t size) {
+    size = (size + 7) & ~7;
+
     struct BlockHeader* current = g_BlockHead;
 
     while (current) {
         if (current->free && current->size >= size) {
-            if (current->size > size + sizeof(struct BlockHeader)) {
+            if (current->size >= size + sizeof(struct BlockHeader) + 8) {
                 struct BlockHeader* newBlock = (void*)((uint8_t*)current + sizeof(struct BlockHeader) + size);
                 newBlock->size = current->size - size - sizeof(struct BlockHeader);
                 newBlock->free = true;
@@ -57,9 +59,11 @@ void KFree(void* ptr) {
     block->free = 1;
 
     if (block->next && block->next->free) {
+        struct BlockHeader* prev = block->prev;
         block->size += sizeof(struct BlockHeader) + block->next->size;
         block->next = block->next->next;
         if (block->next) block->next->prev = block;
+        block = prev;
     }
     if (block->prev && block->prev->free) {
         block->prev->size += sizeof(struct BlockHeader) + block->size;
