@@ -1,44 +1,44 @@
 # Custom OS
 
 ## Features
-#### Core Systems
+**Core Systems**
 - [x] Bootloader 
 - [x] GDT 
 - [x] IDT 
 - [x] ISR 
 - [x] IRQ 
 - [x] Basic Interrupt handling 
-- [x] i686 I/O 
-#### Memory
+- [x] i686 I/O  
+**Memory**  
 - [ ] Paging (wip) 
 - [x] Memory allocation 
-- [x] Strings (in memory) 
-#### Standard Library
+- [x] Strings (in memory)  
+**Standard Library**
 - [x] stdio.h 
 - [x] string.h 
-- [x] memory.h 
-#### Debugging
+- [x] memory.h  
+**Debugging**
 - [x] Logging 
-#### Drivers
-- [x] IDE
-#### File System 
+**Drivers**
+- [x] IDE  
+**File System**
 - [x] Basic file system (based off of FAT)
-- [x] Hard drive read/write 
-#### Shell
+- [x] Hard drive read/write  
+**Shell**
 - [x] Shell parsing 
 - [ ] Shell commands 
   - [x] help 
   - [x] ping (froggo) 
   - [x] clear 
   - [ ] echo 
-  - [ ] cat 
-#### Networking
+  - [ ] cat  
+**Networking**
 - [ ] IPv4 
 - [ ] TCP 
-- [ ] SSH 
-#### User Applications
-- [ ] Vim 
-#### Visuals
+- [ ] SSH  
+**User Applications**
+- [ ] Vim  
+**Visuals**
 - [x] Basic VGA (turned off for now)
 
 
