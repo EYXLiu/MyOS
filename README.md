@@ -2,44 +2,44 @@
 
 ## Features
 #### Core Systems
-- [x] Bootloader <br/>
-- [x] GDT <br/>
-- [x] IDT <br/>
-- [x] ISR <br/>
-- [x] IRQ <br/>
-- [x] Basic Interrupt handling <br/>
-- [x] i686 I/O <br/>
+- [x] Bootloader 
+- [x] GDT 
+- [x] IDT 
+- [x] ISR 
+- [x] IRQ 
+- [x] Basic Interrupt handling 
+- [x] i686 I/O 
 #### Memory
-- [ ] Paging (wip) <br/>
-- [x] Memory allocation <br/>
-- [x] Strings (in memory) <br/>
+- [ ] Paging (wip) 
+- [x] Memory allocation 
+- [x] Strings (in memory) 
 #### Standard Library
-- [x] stdio.h <br/>
-- [x] string.h <br/>
-- [x] memory.h <br/>
+- [x] stdio.h 
+- [x] string.h 
+- [x] memory.h 
 #### Debugging
-- [x] Logging <br/>
+- [x] Logging 
 #### Drivers
-- [x] IDE <br/>
+- [x] IDE
 #### File System 
-- [x] Basic file system (based off of FAT) <br/>
-- [x] Hard drive read/write <br/>
+- [x] Basic file system (based off of FAT)
+- [x] Hard drive read/write 
 #### Shell
-- [x] Shell parsing <br/>
-- [ ] Shell commands <br/>
-  - [x] help <br/>
-  - [x] ping (froggo) <br/>
-  - [x] clear <br/>
-  - [ ] echo <br/>
-  - [ ] cat <br/>
+- [x] Shell parsing 
+- [ ] Shell commands 
+  - [x] help 
+  - [x] ping (froggo) 
+  - [x] clear 
+  - [ ] echo 
+  - [ ] cat 
 #### Networking
-- [ ] IPv4 <br/>
-- [ ] TCP <br/>
-- [ ] SSH <br/>
+- [ ] IPv4 
+- [ ] TCP 
+- [ ] SSH 
 #### User Applications
-- [ ] Vim <br/>
+- [ ] Vim 
 #### Visuals
-- [x] Basic VGA (turned off for now) <br/>
+- [x] Basic VGA (turned off for now)
 
 
 ## QEMU Commands
