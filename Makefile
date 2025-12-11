@@ -73,6 +73,16 @@ debug: floppy
 		-S -s -serial stdio & sleep 1 && gdb -ex "target remote localhost:1234"
 
 #
+# log registers
+#
+log: floppy
+	@qemu-system-i386 \
+		-m 512M \
+		-fda $(BUILD_DIR)/floppy.img \
+		-hda $(BUILD_DIR)/hdd.img \
+		-serial stdio -d int
+
+#
 # run
 #
 run: floppy
