@@ -66,7 +66,7 @@ FileEntry FS_FindFile(Directory* parent, const char* name);
 void FS_FileCreate(Directory* parent, const char* name);
 void FS_FileDelete(Directory* parent, const char* name);
 void FS_FilePrint(Directory* parent, const char* name);
-void FS_FileClear(Directory* parent, const char* name);
+uint32_t FS_FileClear(Directory* parent, const char* name);
 void FS_FileWrite(Directory* parent, const char* name, const void* buffer, size_t bytes);
 void FS_FileAppend(Directory* parent, const char* name, const void* buffer, size_t bytes);
 

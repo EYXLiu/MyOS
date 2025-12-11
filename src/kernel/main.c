@@ -29,26 +29,6 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
     uint32_t root = FS_Initialize();
     Directory dir;
     FS_SetDirectory(&dir, root);
-/*
-
-    printf("File create testfile\n");
-    FS_FileCreate(&g_Dir, "testfile");
-    printf("File write testfile hello\n");
-    FS_FileWrite(&g_Dir, "testfile", "hello", 5);
-    printf("File LS\n");
-    FS_LS(&g_Dir);
-    printf("File read testfile\n");
-    FS_FilePrint(&g_Dir, "testfile");
-
-    printf("File append testfile hello\n");
-    FS_FileAppend(&g_Dir, "testfile", "hello", 5);
-    printf("File read testfile\n");
-    FS_FilePrint(&g_Dir, "testfile");
-    printf("File done\n");
-    FS_LS(&g_Dir);
-
-    goto end;
-*/
 
     Shell_Initialize(&dir);
     Shell_Run();

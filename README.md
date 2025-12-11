@@ -13,7 +13,8 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
 - **Memory**  
   - [ ] Paging (wip) 
   - [x] Memory allocation 
-  - [x] Strings (in memory)  
+  - [x] Strings (in memory)
+  - [ ] Garbage collector/memory scanner
 - **Standard Library**
   - [x] stdio.h 
   - [x] string.h 
@@ -27,12 +28,17 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [x] Hard drive read/write  
 - **Shell**
   - [x] Shell parsing 
-  - [ ] Shell commands 
+  - Shell commands 
     - [x] help 
     - [x] ping (froggo) 
     - [x] clear 
-    - [ ] echo 
-    - [ ] cat  
+    - [x] echo 
+    - [x] cat  
+    - [x] mkdir 
+    - [x] rmdir 
+    - [x] mkfile
+    - [x] rmfile
+    - [ ] curl
 - **Networking**
   - [ ] IPv4 
   - [ ] TCP 

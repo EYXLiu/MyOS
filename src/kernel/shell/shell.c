@@ -7,6 +7,7 @@
 #include <kstring/string.h>
 #include "shell_parse.h"
 #include <stdbool.h>
+#include "keyboard.h"
 
 #define KEYBOARD_BUFFER_SIZE 128
 
@@ -16,8 +17,6 @@ static bool g_ShiftPressed = false;
 static bool g_CtrlPressed = false;
 
 Directory* g_Dir;
-char* g_Path;
-uint32_t g_PathEnd;
 
 void keyboard_handler(Registers* Reg) {
     uint8_t scancode = i686_inb(0x60);
@@ -69,24 +68,37 @@ void Shell_Print(char* cmd) {
         Shell_Froggo(&pc);
     } else if (strncmp(command, "help", 5) == 0) {
         Shell_Help();
-    } else if (strncmp(command, "echo", 5) == 0) {
-        Shell_Echo(&pc);
     } else if (strncmp(command, "clear", 6) == 0) {
         Clear();
+    } else if (strncmp(command, "ls", 2) == 0) {
+        Shell_LS(g_Dir);
+    } else if (strncmp(command, "echo", 5) == 0) {
+        Shell_Echo(&pc, g_Dir);
+    } else if (strncmp(command, "cat", 4) == 0) {
+        Shell_Cat(&pc, g_Dir);
+    }  else if (strncmp(command, "cd", 3) == 0) {
+        Shell_CD(&pc, g_Dir);
+    } else if (strncmp(command, "mkdir", 6) == 0) {
+        Shell_Mkdir(&pc, g_Dir);
+    } else if (strncmp(command, "mkfile", 7) == 0) {
+        Shell_Mkfile(&pc, g_Dir);
+    } else if (strncmp(command, "rmdir", 6) == 0) {
+        Shell_Rmdir(&pc, g_Dir);
+    } else if (strncmp(command, "rmfile", 7) == 0) {
+        Shell_Rmfile(&pc, g_Dir);
     } else {
         printf("zsh: command not found: %s\n", command);
     }
+    Shell_Free(&pc);
 }
 
 void Shell_Initialize(Directory* dir) {
     i686_IRQ_RegisterHandler(1, keyboard_handler);
     g_Dir = dir;
-    g_Path = dir->name;
-    g_PathEnd = sizeof(dir->name);
 }
 
 void Shell_Run() {
-    printf("FroggOS:%s> ", g_Path);
+    printf("FroggOS:%s> ", g_Dir->name);
     for (;;) {
         if (g_KBTail > 0) {
             char c = g_KeyboardBuffer[g_KBTail - 1];
@@ -95,7 +107,7 @@ void Shell_Run() {
                 g_KeyboardBuffer[g_KBTail - 1] = 0;
                 Shell_Print(g_KeyboardBuffer);
                 g_KBTail = 0;
-                printf("FroggOS:%s> ", g_Path);
+                printf("FroggOS:%s> ", g_Dir->name);
             }
         }
 

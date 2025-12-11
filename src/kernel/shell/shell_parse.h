@@ -15,3 +15,4 @@ typedef struct {
 } ParsedCommand;
 
 ParsedCommand Shell_Parse(char* input);
+void Shell_Free(ParsedCommand* pc);
