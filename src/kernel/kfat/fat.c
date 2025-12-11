@@ -130,7 +130,6 @@ bool FS_Exists(Directory* parent, const char* name, uint8_t type) {
                 FileEntry entry;
                 memcpy(&entry, buffer, sizeof(FileEntry));
                 if (strncmp(entry.name, name, strlen(name)+ 1) == 0) {
-                    log_debug("fs", "%s, %s", entry.name, name);
                     return true;
                 }
             }
@@ -370,7 +369,6 @@ void FS_FileAppend(Directory* parent, const char* name, const void* buffer, size
         header = FS_BatFindFreeBlock();
         FS_BatSet(header);
         FS_BatSave(header);
-        log_debug("fs", "%u", header);
         fh.block = header;
         fh.next_block = 0xFFFFFFFF;
         fh.size = 0;

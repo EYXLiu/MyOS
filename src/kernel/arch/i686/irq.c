@@ -5,6 +5,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <util/array.h>
+#include <debug.h>
 
 #define PIC_REMAP_OFFSET 0x20
 
@@ -17,7 +18,7 @@ void i686_IRQ_Handler(Registers* regs) {
     if (g_IRQHandlers[irq] != NULL) {
         g_IRQHandlers[irq](regs);
     } else {
-        printf("Unhandled IRQ %d\n", irq);
+        log_err("IRQ", "unhandled IRQ %d\n", irq);
     }
 
     g_PicDriver->SendEndOfInterrupt(irq);
@@ -33,7 +34,7 @@ void i686_IRQ_Initialize() {
             g_PicDriver = picDrivers[i];
     
     if (g_PicDriver == NULL) {
-        printf("IRQ: warning, no pic driver\n");
+        log_err("IRQ", "warning, no pic driver\n");
         return;
     }
 

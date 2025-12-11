@@ -4,6 +4,7 @@
 #include "io.h"
 #include <stdio.h>
 #include <stddef.h>
+#include <debug.h>
 
 ISRHandler g_ISRHandlers[256];
 
@@ -57,18 +58,22 @@ void __attribute__((cdecl)) i686_ISR_Handler(Registers* regs) {
         g_ISRHandlers[regs->interrupt](regs);
     
     else if (regs->interrupt >= 32)
-        printf("Unhandled ISR %d\n", regs->interrupt);
+        log_err("ISR", "unhandled ISR %d", regs->interrupt);
     
     else {
-        printf("Unhandled exception %d %s\n", regs->interrupt, g_Exceptions[regs->interrupt]);
+        log_err("ISR", "unhandled exception %d %s", regs->interrupt, g_Exceptions[regs->interrupt]);
         
-        printf("  eax=%x  ebx=%x  ecx=%x  edx=%x  esi=%x  edi=%x\n",
+        log_err("ISR", "  eax=%x  ebx=%x  ecx=%x  edx=%x  esi=%x  edi=%x",
                regs->eax, regs->ebx, regs->ecx, regs->edx, regs->esi, regs->edi);
 
-        printf("  esp=%x  ebp=%x  eip=%x  eflags=%x  cs=%x  ds=%x  ss=%x\n",
+        log_err("ISR", "  esp=%x  ebp=%x  eip=%x  eflags=%x  cs=%x  ds=%x  ss=%x",
                regs->esp, regs->ebp, regs->eip, regs->eflags, regs->cs, regs->ds, regs->ss);
 
-        printf("  interrupt=%x  errorcode=%x\n", regs->interrupt, regs->error);
+        log_err("ISR", "  interrupt=%x  errorcode=%x", regs->interrupt, regs->error);
+        
+        uint32_t fault_addr;
+        __asm__ volatile("mov %%cr2, %0": "=r"(fault_addr));
+        log_err("PAGE_FAULT", "Fault at 0x%x", fault_addr);
 
         printf("Fatal exception occured; system stopping\n");
         i686_Halt();
