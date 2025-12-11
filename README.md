@@ -44,7 +44,8 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [ ] TCP 
   - [ ] SSH  
 - **User Applications**
-  - [ ] Vim  
+  - [ ] Vim
+  - [ ] doom
 - **Visuals**
   - [x] Basic VGA (turned off for now)
 - **Emulators**
