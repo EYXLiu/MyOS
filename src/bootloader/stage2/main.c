@@ -16,8 +16,7 @@ typedef void (*KernelStart)();
 
 #define COLOR(r, g, b) ((b) | (g << 8) | (r << 16))
 
-void __attribute__((cdecl)) cstart(uint16_t bootDrive) 
-{
+void __attribute__((cdecl)) cstart(uint16_t bootDrive) {
     clrscr();
     
     DISK disk;
@@ -36,8 +35,6 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive)
     // load memory
     g_BootParams.BootDevice = bootDrive;
     Memory_Detect(&g_BootParams.Memory);
-
-    //for (;;);
 
     // load kernel
     FAT_File* k_fd = FAT_Open(&disk, "/kernel.bin");
