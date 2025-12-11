@@ -9,7 +9,8 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [x] ISR 
   - [x] IRQ 
   - [x] Basic Interrupt handling 
-  - [x] i686 I/O  
+  - [x] i686 I/O
+  - [ ] PCI
 - **Memory**  
   - [ ] Paging (wip) 
   - [x] Memory allocation 
@@ -22,7 +23,8 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
 - **Debugging**
   - [x] Logging 
 - **Drivers**
-  - [x] IDE  
+  - [x] IDE
+  - [ ] RTL8139
 - **File System**
   - [x] Basic file system (based off of FAT)
   - [x] Hard drive read/write  
