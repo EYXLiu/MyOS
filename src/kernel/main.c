@@ -12,6 +12,8 @@
 #include <arch/i686/ide.h>
 #include <kfat/fat.h>
 #include <string.h>
+#include <arch/i686/pmm.h>
+#include <drivers/rtl8139.h>
 
 extern uint8_t __bss_start;
 extern uint8_t __end;
@@ -24,7 +26,13 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
 
     BlockMem_Initialize(&__end);
 
-    //i686_Page_Initialize();
+    i686_Page_Initialize();
+
+    i686_PMM_Initialize((uintptr_t)&__end + HEAP_SIZE);
+
+    RTL8139_Initialize();
+
+goto end;
 
     uint32_t root = FS_Initialize();
     Directory dir;

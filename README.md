@@ -10,9 +10,9 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [x] IRQ 
   - [x] Basic Interrupt handling 
   - [x] i686 I/O
-  - [ ] PCI
+  - [x] PCI
 - **Memory**  
-  - [ ] Paging (wip) 
+  - [x] Paging 
   - [x] Memory allocation 
   - [x] Strings (in memory)
   - [ ] Garbage collector/memory scanner
