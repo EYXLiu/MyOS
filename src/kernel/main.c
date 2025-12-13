@@ -18,8 +18,7 @@
 extern uint8_t __bss_start;
 extern uint8_t __end;
 
-void __attribute__((section(".entry"))) kstart(BootParams* bootParams) 
-{
+void __attribute__((section(".entry"))) kstart(BootParams* bootParams) {
     memset(&__bss_start, 0, (&__end) - (&__bss_start));
 
     HAL_Initialize();
