@@ -66,7 +66,7 @@ Requirements <br/>
 - i686.elf-gcc
 - NASM
 - QEMU
-- gdb
+- gdb  
 To compile <br/>
 ```
 make
