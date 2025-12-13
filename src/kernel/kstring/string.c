@@ -65,3 +65,21 @@ void KS_SetString(KString* ks, const char* s) {
     memcpy(ks->string, s, slen + 1);
     ks->len = slen;
 }
+
+void KS_Remove(KString* ks, uint32_t num) {
+    if (num >= ks->len) {
+        KS_ClearString(ks);
+    } else {
+        ks->len -= num;
+        ks->string[ks->len] = 0;
+    }
+}
+
+void KS_RemoveChar(KString* ks) {
+    KS_Remove(ks, 1);
+}
+
+void KS_ClearString(KString* ks) {
+    ks->len = 0;
+    ks->string[0] = 0;
+}

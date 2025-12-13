@@ -32,8 +32,6 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams)
 
     RTL8139_Initialize();
 
-goto end;
-
     uint32_t root = FS_Initialize();
     Directory dir;
     FS_SetDirectory(&dir, root);

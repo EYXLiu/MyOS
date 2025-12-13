@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <kstring/string.h>
 
 #define NO_REDIRECT 0
 #define REDIRECT_TRUNC 1
@@ -14,5 +15,5 @@ typedef struct {
     char* out_file;
 } ParsedCommand;
 
-ParsedCommand Shell_Parse(char* input);
+ParsedCommand Shell_Parse(KString* ks);
 void Shell_Free(ParsedCommand* pc);

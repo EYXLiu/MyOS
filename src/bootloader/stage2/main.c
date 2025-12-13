@@ -68,7 +68,6 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive) {
                 break;
             }
         }
-
         if (pickedMode != 0xFFFF && VBE_SetMode(pickedMode)) {
             uint32_t* fb = (uint32_t*)(modeInfo->framebuffer);
             int w = modeInfo->width;
@@ -79,12 +78,11 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive) {
                 }
 
         }
-
     } else {
         printf("MAIN: failed to initialize vbe\n");
     }
     */
-    
+
     KernelStart kernelStart = (KernelStart)Kernel;
     kernelStart(&g_BootParams);
 

@@ -8,11 +8,9 @@
 #include "shell_parse.h"
 #include <stdbool.h>
 #include "keyboard.h"
+#include <debug.h>
 
-#define KEYBOARD_BUFFER_SIZE 128
-
-static char g_KeyboardBuffer[KEYBOARD_BUFFER_SIZE];
-static uint32_t g_KBTail = 0;
+static KString g_Ks;
 static bool g_ShiftPressed = false;
 static bool g_CtrlPressed = false;
 
@@ -43,12 +41,12 @@ void keyboard_handler(Registers* Reg) {
             }
             if (c) {
                 if (c == '\b') {
-                    if (g_KBTail > 0) {
-                        g_KBTail--;
-                        printf("\b");
+                    if (g_Ks.len > 0) {
+                        KS_RemoveChar(&g_Ks);
+                        printf("%c", c);
                     }
-                } else if (g_KBTail < KEYBOARD_BUFFER_SIZE - 1) {
-                    g_KeyboardBuffer[g_KBTail++] = c;
+                } else {
+                    KS_AppendChar(&g_Ks, c);
                     printf("%c", c);
                 }
             }
@@ -58,10 +56,10 @@ void keyboard_handler(Registers* Reg) {
     i686_outb(0x20, 0x20);
 }
 
-void Shell_Print(char* cmd) {
-    if (cmd[0] == 0) return;
-
-    ParsedCommand pc = Shell_Parse(cmd);
+void Shell_Print() {
+    if (g_Ks.string[0] == 0) return;
+    
+    ParsedCommand pc = Shell_Parse(&g_Ks);
     char* command = pc.cmd;
 
     if (strncmp(command, "froggo", 7) == 0) {
@@ -94,19 +92,20 @@ void Shell_Print(char* cmd) {
 
 void Shell_Initialize(Directory* dir) {
     i686_IRQ_RegisterHandler(1, keyboard_handler);
+    g_Ks = KS_Init();
     g_Dir = dir;
 }
 
 void Shell_Run() {
     printf("FroggOS:%s> ", g_Dir->name);
     for (;;) {
-        if (g_KBTail > 0) {
-            char c = g_KeyboardBuffer[g_KBTail - 1];
+        if (g_Ks.len > 0) {
+            char c = g_Ks.string[g_Ks.len-1];
 
             if (c == '\n' || c == '\r') {
-                g_KeyboardBuffer[g_KBTail - 1] = 0;
-                Shell_Print(g_KeyboardBuffer);
-                g_KBTail = 0;
+                KS_RemoveChar(&g_Ks);
+                Shell_Print();
+                KS_ClearString(&g_Ks);
                 printf("FroggOS:%s> ", g_Dir->name);
             }
         }

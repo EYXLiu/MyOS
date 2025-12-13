@@ -3,15 +3,19 @@
 #include <stddef.h>
 #include <memory.h>
 #include <mem/block_allocator.h>
+#include <kstring/string.h>
 
 #include <stdio.h>
 
-ParsedCommand Shell_Parse(char* input) {
+ParsedCommand Shell_Parse(KString* ks) {
     ParsedCommand cmd;
     cmd.mode = NO_REDIRECT;
     cmd.argc = 0;
     cmd.cmd = NULL;
     cmd.out_file = NULL;
+
+    char* input = KMalloc(ks->len + 1);
+    memcpy(input, ks->string, ks->len + 1);
 
     char* token = strtok(input, " ");
     cmd.cmd = strdup(token);
@@ -31,6 +35,7 @@ ParsedCommand Shell_Parse(char* input) {
         token = strtok(NULL, " ");
     }
     cmd.argv[cmd.argc] = NULL;
+    KFree(input);
     return cmd;
 }
 
