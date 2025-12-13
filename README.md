@@ -85,7 +85,7 @@ set $register
 stepi
 nexti
 continue
-break
+break *0x7c00
 ```
 
 ## How I got started 
