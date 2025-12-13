@@ -62,12 +62,12 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
 - `option control 1` to switch back <br/>
 
 ## To compile for MacOS
-Requirements <br/>
+#### Requirements <br/>
 - i686.elf-gcc
 - NASM
 - QEMU
-- gdb  
-To compile <br/>
+- gdb
+#### To compile <br/>
 ```
 make
 make run
