@@ -102,7 +102,7 @@ void Shell_Mkfile(ParsedCommand* pc, Directory* dir) {
 
 void Shell_Rmdir(ParsedCommand* pc, Directory* dir) {
     if (pc->argc == 0) {
-        printf("usage: mkdir [dir name]\n");
+        printf("usage: rmdir [dir name]\n");
         return;
     }
     FS_DirDelete(dir, pc->argv[0]);
@@ -110,8 +110,16 @@ void Shell_Rmdir(ParsedCommand* pc, Directory* dir) {
 
 void Shell_Rmfile(ParsedCommand* pc, Directory* dir) {
     if (pc->argc == 0) {
-        printf("usage: mkfile [file name]\n");
+        printf("usage: rmfile [file name]\n");
         return;
     }
     FS_FileDelete(dir, pc->argv[0]);
+}
+
+void Shell_Sizefile(ParsedCommand* pc, Directory* dir) {
+    if (pc->argc == 0) {
+        printf("usage: size [file name]\n");
+        return;
+    }
+    FS_FileSize(dir, pc->argv[0]);
 }

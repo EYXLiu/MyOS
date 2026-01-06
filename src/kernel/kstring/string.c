@@ -66,7 +66,7 @@ void KS_SetString(KString* ks, const char* s) {
     ks->len = slen;
 }
 
-void KS_Remove(KString* ks, uint32_t num) {
+void KS_Remove(KString* ks, size_t num) {
     if (num >= ks->len) {
         KS_ClearString(ks);
     } else {
@@ -82,4 +82,18 @@ void KS_RemoveChar(KString* ks) {
 void KS_ClearString(KString* ks) {
     ks->len = 0;
     ks->string[0] = 0;
+}
+
+void KS_InsertLoc(KString* ks, char c, size_t loc) {
+    if (loc >= ks->len) return;
+    KS_Alloc(ks, ks->len + 2);
+
+    for (int i = loc; i < ks->len; i++) {
+        ks->string[i + 1] = ks->string[i];
+    }
+    
+}
+
+void KS_DeleteLoc(KString* ks, size_t loc) {
+
 }

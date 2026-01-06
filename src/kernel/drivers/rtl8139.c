@@ -20,12 +20,6 @@
 #define RTL8139_TCR 0x40
 #define RTL8139_CONFIG1 0x52
 
-#define RTL8139_CMD_RESET 0x10
-#define RTL8139_CMD_RX_ENABLE 0x8
-#define RTL8139_CMD_TX_ENABLE 0x4
-
-#define RTL8139_RCR_DEFAULT (1 << 0 | 1 << 2 | 1 << 3 | 1 << 7)
-
 #define ROK 0x01
 #define TOK 0x04
 
@@ -37,13 +31,33 @@ uint8_t mac[6];
 
 void rtl8139_handler(uint8_t isr, uint64_t error, uint64_t irq) {
     uint16_t status = i686_inw(g_Dev.base + RTL8139_ISR);
-    i686_outw(g_Dev.base + RTL8139_ISR, 0x05);
+    i686_outw(g_Dev.base + RTL8139_ISR, 0x35);
     if (status & TOK) {
 
     }
     if (status & ROK) {
-
+        printf("received\n");
     }
+}
+
+void RTL8139_PowerOn() {
+    i686_outb(g_Dev.base + RTL8139_CONFIG1, 0x0);
+}
+
+void RTL8139_InitRX() {
+    i686_outl(g_Dev.base + RTL8139_REG_RXBUF, (uintptr_t)rx_buffer);
+}
+
+void RTL8139_SetImrIsr() {
+    i686_outw(g_Dev.base + RTL8139_IMR, 0x0005);
+}
+
+void RTL8139_ConfigRCR() {
+    i686_outl(g_Dev.base + RTL8139_RCR, 0xF | (1 << 7));
+}
+
+void RTL8139_InitRXTX() {
+    i686_outb(g_Dev.base + RTL8139_RX_CMD, 0x0C);
 }
 
 void RTL8139_ReadMac() {
@@ -60,12 +74,17 @@ void RTL8139_Initialize() {
     }
     log_debug("RTL8139", "I/O base: 0x%x", g_Dev.base);
 
+    RTL8139_PowerOn();
     RTL8139_Reset();
+    RTL8139_InitRX();
+    RTL8139_SetImrIsr();
+    RTL8139_ConfigRCR();
+    RTL8139_InitRXTX();
     RTL8139_ReadMac();
     log_debug("RTL8139", "MAC address %x:%x:%x:%x:%x:%x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
 }
 
 void RTL8139_Reset() {
-    i686_outb(g_Dev.base + RTL8139_CMD, RTL8139_CMD_RESET);
-    while (i686_inb(g_Dev.base + RTL8139_CMD) & RTL8139_CMD_RESET);
+    i686_outb(g_Dev.base + RTL8139_CMD, 0x10);
+    while (i686_inb(g_Dev.base + RTL8139_CMD) & 0x10);
 }

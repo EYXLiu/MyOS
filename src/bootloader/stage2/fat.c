@@ -122,7 +122,8 @@ uint32_t FAT_Read(DISK* disk, FAT_File* file, uint32_t byteCount, void* dataOut)
     uint8_t* u8DataOut = (uint8_t*)dataOut;
 
     if (!fd->Public.IsDirectory || (fd->Public.IsDirectory && fd->Public.Size != 0)) 
-        byteCount = min(byteCount, fd->Public.Size - fd->Public.Position);
+        if (fd->Public.Position >= fd->Public.Size) 
+            return 0;
 
     while (byteCount > 0) {
         uint32_t leftInBuffer = SECTOR_SIZE - (fd->Public.Position % SECTOR_SIZE);

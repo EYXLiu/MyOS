@@ -43,7 +43,9 @@ void i686_IDE_Read(uint32_t lba, uint8_t* buffer) {
 
     // read 1 block (512 bytes) from data port
     for (int i = 0; i < 256; i++) {
-        buffer[i] = i686_inw(IDE_DATA);
+        uint16_t word = i686_inw(IDE_DATA);
+        buffer[i * 2] = word & 0xFF;
+        buffer[i * 2 + 1] = (word >> 8) & 0xFF;
     }
 }
 
@@ -63,7 +65,8 @@ void i686_IDE_Write(uint32_t lba, const uint8_t* buffer) {
 
     // write 1 block (512 bytes) from data port
     for (int i = 0; i < 256; i++) {
-        i686_outw(IDE_DATA, buffer[i]);
+        uint16_t word = buffer[i * 2] | (buffer[i * 2 + 1] << 8);
+        i686_outw(IDE_DATA, word);
     }
 
     i686_IDE_WaitBSY();

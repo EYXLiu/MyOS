@@ -26,6 +26,7 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive) {
     }
     g_BootParams.disk = &disk;
 
+
     if (!FAT_Initialize(&disk)) {
         printf("MAIN: fat init error\r\n");
         goto end;
@@ -46,12 +47,11 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive) {
     }
     FAT_Close(k_fd);
 
-    const int desiredHeight = 768;
     const int desiredWidth = 1024;
+    const int desiredHeight = 768;
     const int desiredBpp = 32;
     uint16_t pickedMode = 0xFFFF;
 
-    /*
     // initialize graphics
     VbeInfoBlock* info = (VbeInfoBlock*)MEMORY_VESA_INFO;
     VbeModeInfo* modeInfo = (VbeModeInfo*)MEMORY_VESA_MODE_INFO;
@@ -68,20 +68,17 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive) {
                 break;
             }
         }
-        if (pickedMode != 0xFFFF && VBE_SetMode(pickedMode)) {
-            uint32_t* fb = (uint32_t*)(modeInfo->framebuffer);
-            int w = modeInfo->width;
-            int h = modeInfo->height;
-            for (int y = 0; y < h; y++)
-                for (int x = 0; x < w; x++) {
-                    fb[y * modeInfo->pitch / 4 + x] = x + y;
-                }
-
+        if (pickedMode != 0xFFFF) {
+            if (!VBE_SetMode(pickedMode)) {
+                printf("MAIN: failed to set vbe mode\n");
+            }
         }
     } else {
         printf("MAIN: failed to initialize vbe\n");
     }
-    */
+
+    g_BootParams.vbeInfo = info;
+    g_BootParams.vbeMode = modeInfo;
 
     KernelStart kernelStart = (KernelStart)Kernel;
     kernelStart(&g_BootParams);

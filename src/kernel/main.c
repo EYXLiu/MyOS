@@ -14,6 +14,7 @@
 #include <string.h>
 #include <arch/i686/pmm.h>
 #include <drivers/rtl8139.h>
+#include <drivers/vbe.h>
 
 extern uint8_t __bss_start;
 extern uint8_t __end;
@@ -24,16 +25,25 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams) {
     HAL_Initialize();
 
     BlockMem_Initialize(&__end);
-
+/*
     i686_Page_Initialize();
 
     i686_PMM_Initialize((uintptr_t)&__end + HEAP_SIZE);
 
     RTL8139_Initialize();
+*/
 
-    uint32_t root = FS_Initialize();
+    uint32_t root = FS_Load();
     Directory dir;
     FS_SetDirectory(&dir, root);
+
+    VBE_Initialize(bootParams->vbeInfo, bootParams->vbeMode);
+    VBE_SetBG(&dir, "bgr2.bin");
+
+    VBE_PutP(0, 0, 0xFF000000);
+    VBE_PutP(1, 0, 0xFF000000);
+    VBE_PutP(0, 1, 0xFF000000);
+    VBE_PutP(1, 1, 0xFF000000);
 
     Shell_Initialize(&dir);
     Shell_Run();

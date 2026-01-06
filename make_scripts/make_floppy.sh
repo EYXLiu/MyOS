@@ -28,3 +28,8 @@ printf "%x" ${STAGE2_SECTORS} | xxd -r -p | dd of=$TARGET conv=notrunc bs=1 seek
 
 # files
 mcopy -i "$TARGET" "${BUILD_DIR}/kernel.bin" "::kernel.bin"
+
+# create fat system
+gcc -o make_scripts/load_fat make_scripts/load_fat.c
+./make_scripts/load_fat bgr.bin bgr2.bin
+# mcopy -i "$TARGET" "${SOURCE_DIR}/bgr2.bgra" "::bgr.bin"

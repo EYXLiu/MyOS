@@ -15,4 +15,4 @@ void Shell_Mkdir(ParsedCommand* pc, Directory* dir);
 void Shell_Mkfile(ParsedCommand* pc, Directory* dir);
 void Shell_Rmdir(ParsedCommand* pc, Directory* dir);
 void Shell_Rmfile(ParsedCommand* pc, Directory* dir);
-
+void Shell_Sizefile(ParsedCommand* pc, Directory* dir);

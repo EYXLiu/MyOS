@@ -3,6 +3,7 @@
 #include <stdarg.h>
 #include "stdio.h"
 #include <arch/i686/io.h>
+#include <debug.h>
 
 const unsigned SCREEN_WIDTH = 80;
 const unsigned SCREEN_HEIGHT = 25;
@@ -40,6 +41,7 @@ void VGA_clrscr() {
     g_ScreenX = 0;
     g_ScreenY = 0;
     VGA_setcursor(g_ScreenX, g_ScreenY);
+    log_debug("VGA", "%x", g_ScreenBuffer);
 }
 
 void VGA_setcursor(int x, int y) {
