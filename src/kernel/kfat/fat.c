@@ -305,15 +305,15 @@ void FS_FileDelete(Directory* parent, const char* name) {
 }
 
 void FS_FileBlockPrint(uint32_t block) {
-    if (block == 0xFFFFFFFF) return;
+    while (block != 0xFFFFFFFF) {
+        uint8_t buf[FS_BLOCK_SIZE] = {0};
+        FS_ReadBlock(block, buf);
+        FileHeader fh;
+        memcpy(&fh, buf, sizeof(FileHeader));
+        printf("%s", fh.data);
 
-    uint8_t buffer[FS_BLOCK_SIZE];
-    memset(buffer, 0, sizeof(buffer));
-    FS_ReadBlock(block, buffer);
-    FileHeader fh;
-    memcpy(&fh, buffer, sizeof(FileHeader));
-    printf("%s", fh.data);
-    FS_FileBlockPrint(fh.next_block);
+        block = fh.next_block;
+    }
 }
 
 void FS_FilePrint(Directory* parent, const char* name) {
@@ -432,4 +432,25 @@ void FS_FileRead(Directory* parent, const char* name, void* buffer, uint32_t byt
         return;
     }
     FS_FileBlockRead(fe.first_block, (uint8_t*)buffer, bytes);
+}
+
+void FS_FileSize(Directory* parent, const char* name) {
+    FileEntry fe = FS_FindFile(parent, name);
+    if (fe.type == 0) {
+        printf("FS: not a file\n");
+        return;
+    }
+    uint32_t size = 0;
+    uint32_t block = fe.first_block;
+    while (block != 0xFFFFFFFF) {
+        uint8_t buf[FS_BLOCK_SIZE] = {0};
+        FS_ReadBlock(block, buf);
+        FileHeader fh;
+        memcpy(&fh, buf, sizeof(FileHeader));
+        size += fh.size;
+
+        block = fh.next_block;
+    }
+
+    printf("%u\n", size);
 }

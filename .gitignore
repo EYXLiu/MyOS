@@ -7,3 +7,5 @@ STAGE2_O.LIB
 *.ERR
 
 /.vscode
+
+make_scripts/load_fat

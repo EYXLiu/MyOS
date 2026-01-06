@@ -38,7 +38,12 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams) {
     FS_SetDirectory(&dir, root);
 
     VBE_Initialize(bootParams->vbeInfo, bootParams->vbeMode);
-    VBE_SetBG(&dir, "bgr.bin");
+    VBE_SetBG(&dir, "bgr2.bin");
+
+    VBE_PutP(0, 0, 0xFF000000);
+    VBE_PutP(1, 0, 0xFF000000);
+    VBE_PutP(0, 1, 0xFF000000);
+    VBE_PutP(1, 1, 0xFF000000);
 
     Shell_Initialize(&dir);
     Shell_Run();

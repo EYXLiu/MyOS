@@ -67,11 +67,9 @@ uint32_t allocate_block(uint8_t* bat) {
     }
     return 0xFFFFFFFF; // no free block
 }
-
-int main() {
+int main(int argc, char* argv[]) {
     FILE* f = fopen("build/hdd.img", "wb+");
-    FILE* bf = fopen("bgr.bgra", "rb");
-    if (!f || !bf) return 1;
+    if (!f) return 1;
 
     // --- Superblock ---
     Superblock sb = {0};
@@ -99,70 +97,73 @@ int main() {
     root.count = 0;
     write_block(f, FS_DATA_LBA, &root);
 
-    // --- Add bgr.bgra ---
-    fseek(bf, 0, SEEK_END);
-    size_t filesize = ftell(bf);
-    fseek(bf, 0, SEEK_SET);
-
-    uint32_t first_block = 0xFFFFFFFF;
-    uint32_t prev_block = 0xFFFFFFFF;
-    size_t remaining = filesize;
-    uint8_t buffer[FS_FILE_MAX_SIZE];
-
-    while (remaining > 0) {
-        size_t chunk = remaining > FS_FILE_MAX_SIZE ? FS_FILE_MAX_SIZE : remaining;
-        fread(buffer, 1, chunk, bf);
-
-        uint32_t block = allocate_block(bat);
-        if (block == 0xFFFFFFFF) {
-            printf("No more free blocks!\n");
-            break;
+    // --- Add files ---
+    for (int i = 1; i < argc; i++) {
+        FILE* bf = fopen(argv[i], "rb");
+        if (!bf) {
+            printf("Failed to open file %s\n", argv[i]);
+            continue;
         }
 
-        FileHeader fh = {0};
-        fh.block = block;
-        fh.next_block = 0xFFFFFFFF;
-        fh.size = chunk;
-        memcpy(fh.data, buffer, chunk);
+        fseek(bf, 0, SEEK_END);
+        size_t filesize = ftell(bf);
+        fseek(bf, 0, SEEK_SET);
 
-        // Write the new block
-        write_block(f, block, &fh);
+        uint32_t first_block = 0xFFFFFFFF;
+        uint32_t prev_block = 0xFFFFFFFF;
+        size_t remaining = filesize;
+        uint8_t buffer[FS_FILE_MAX_SIZE];
 
-        // Link previous block
-        if (prev_block != 0xFFFFFFFF) {
-            FileHeader prev_fh;
-            read_block(f, prev_block, &prev_fh);
-            prev_fh.next_block = block;
-            write_block(f, prev_block, &prev_fh);
-        } else {
-            first_block = block;
+        while (remaining > 0) {
+            size_t chunk = remaining > FS_FILE_MAX_SIZE ? FS_FILE_MAX_SIZE : remaining;
+            fread(buffer, 1, chunk, bf);
+
+            uint32_t block = allocate_block(bat);
+            if (block == 0xFFFFFFFF) {
+                printf("No more free blocks for file %s!\n", argv[i]);
+                break;
+            }
+
+            FileHeader fh = {0};
+            fh.block = block;
+            fh.next_block = 0xFFFFFFFF;
+            fh.size = chunk;
+            memcpy(fh.data, buffer, chunk);
+
+            write_block(f, block, &fh);
+
+            if (prev_block != 0xFFFFFFFF) {
+                FileHeader prev_fh;
+                read_block(f, prev_block, &prev_fh);
+                prev_fh.next_block = block;
+                write_block(f, prev_block, &prev_fh);
+            } else {
+                first_block = block;
+            }
+
+            prev_block = block;
+            remaining -= chunk;
         }
 
-        prev_block = block;
-        remaining -= chunk;
+        uint32_t fe_block = allocate_block(bat);
+        FileEntry fe = {0};
+        fe.type = FILE_TYPE_FILE;
+        strncpy(fe.name, argv[i], sizeof(fe.name)-1);
+        fe.first_block = first_block;
+        fe.block = fe_block;
+
+        write_block(f, fe_block, &fe);
+
+        root.entries[root.count++] = fe_block;
+        write_block(f, FS_DATA_LBA, &root);
+
+        fclose(bf);
     }
 
-    // --- Create FileEntry in root ---
-    uint32_t fe_block = allocate_block(bat);
-    FileEntry fe = {0};
-    fe.type = FILE_TYPE_FILE;
-    strcpy(fe.name, "bgr.bin");
-    fe.first_block = first_block;
-    fe.block = fe_block;
-
-    write_block(f, fe_block, &fe);
-
-    // Add entry to root directory
-    root.entries[root.count++] = fe_block;
-    write_block(f, FS_DATA_LBA, &root);
-
-    // --- Write BAT back ---
     for (int i = 0; i < FS_BAT_BLOCKS; i++)
         write_block(f, FS_BAT_LBA + i, bat + i * FS_BLOCK_SIZE);
 
-    fclose(bf);
     fclose(f);
-
-    printf("File added successfully!\n");
+    printf("Files added successfully!\n");
     return 0;
 }

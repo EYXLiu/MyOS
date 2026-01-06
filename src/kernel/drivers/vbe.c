@@ -37,4 +37,18 @@ void VBE_SetBG(Directory* parent, const char* s) {
     uint16_t pitch = modeInfo->pitch;
     log_debug("VBE", "%u", pitch * h);
     FS_FileRead(parent, s, fb, pitch * h);
+    log_debug("VBE", "%x", fb + (pitch * h));
+}
+
+void VBE_PutP(uint32_t x, uint32_t y, uint32_t color) {
+    if (x >= modeInfo->width || y >= modeInfo->height) 
+        return;
+    
+    uint8_t* fb = (uint8_t*)modeInfo->framebuffer;
+    uint32_t offset = y * modeInfo->pitch + x * 4;
+    *(uint32_t*)(fb + offset) = color;
+}
+
+uint32_t BGRA(uint8_t r, uint8_t g, uint8_t b) {
+    return (0xFF << 24) | (r << 16) | (g << 8) | b; 
 }

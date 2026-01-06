@@ -84,6 +84,8 @@ void Shell_Print() {
         Shell_Rmdir(&pc, g_Dir);
     } else if (strncmp(command, "rmfile", 7) == 0) {
         Shell_Rmfile(&pc, g_Dir);
+    } else if (strncmp(command, "size", 5) == 0) {
+        Shell_Sizefile(&pc, g_Dir);
     } else {
         printf("zsh: command not found: %s\n", command);
     }

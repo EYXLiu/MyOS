@@ -69,7 +69,8 @@ void FS_FilePrint(Directory* parent, const char* name);
 uint32_t FS_FileClear(Directory* parent, const char* name);
 void FS_FileWrite(Directory* parent, const char* name, const void* buffer, size_t bytes);
 void FS_FileAppend(Directory* parent, const char* name, const void* buffer, size_t bytes);
-void FS_FileRead(Directory* parent, const char* name, void* buffer, size_t bytes);
+void FS_FileRead(Directory* parent, const char* name, void* buffer, uint32_t bytes);
+void FS_FileSize(Directory* parent, const char* name);
 
 void FS_LS(Directory* dir);
 void FS_CD(Directory* dir, const char* entry);
