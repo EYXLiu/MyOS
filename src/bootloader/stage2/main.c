@@ -67,12 +67,12 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive) {
                 pickedMode = mode[i];
                 break;
             }
-        }/*
+        }
         if (pickedMode != 0xFFFF) {
             if (!VBE_SetMode(pickedMode)) {
                 printf("MAIN: failed to set vbe mode\n");
             }
-        }*/
+        }
     } else {
         printf("MAIN: failed to initialize vbe\n");
     }
