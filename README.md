@@ -49,7 +49,8 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [ ] Vim
   - [ ] doom
 - **Visuals**
-  - [x] Basic VGA (turned off for now)
+  - [x] Basic VGA (turned off for now)  
+  - [ ] Actual VGA
 - **Emulators**
   - [x] QEMU
   - [ ] GDB (need to change from .img to .elf)
