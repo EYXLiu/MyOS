@@ -12,7 +12,7 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [x] i686 I/O
   - [x] PCI
 - **Memory**  
-  - [x] Paging 
+  - [ ] Paging 
   - [x] Memory allocation 
   - [x] Strings (in memory)
   - [ ] Garbage collector/memory scanner
@@ -28,6 +28,7 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
 - **File System**
   - [x] Basic file system (based off of FAT)
   - [x] Hard drive read/write  
+  - [x] MCopy from external files  
 - **Shell**
   - [x] Shell parsing 
   - Shell commands 
@@ -50,7 +51,9 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [ ] doom
 - **Visuals**
   - [x] Basic VGA (turned off for now)  
-  - [ ] Actual VGA
+  - Actual VGA  
+    - [x] setting up background (breaks the shell)  
+    - [ ] proper VGA (requires paging)  
 - **Emulators**
   - [x] QEMU
   - [ ] GDB (need to change from .img to .elf)

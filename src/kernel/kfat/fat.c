@@ -98,13 +98,11 @@ uint32_t FS_Load() {
 
     FS_ReadBlock(FS_SUPERBLOCK_LBA, buffer);
     memcpy(&g_Superblock, buffer, sizeof(Superblock));
-    if (g_Superblock.magic != FS_MAGIC)
-        return FS_Initialize();
 
     for (int i = 0; i < g_Superblock.bat_block_count; i++)
         FS_ReadBlock(g_Superblock.bat_start_block + i, g_Bat + (i * 512));
     
-    printf("FS: filesystem loaded; total blocks: %u\n", g_Superblock.bat_block_count);
+    log_debug("FS", "filesystem loaded; total blocks: %u", g_Superblock.total_blocks);
 
     return g_Superblock.root_dir_block;
 }
@@ -410,4 +408,28 @@ void FS_FileAppend(Directory* parent, const char* name, const void* buffer, size
 
         FS_SaveFile(&fh);
     } 
+}
+
+void FS_FileBlockRead(uint32_t block, uint8_t* buffer, uint32_t bytes) {
+    while (block != 0xFFFFFFFF && bytes > 0) {
+        uint8_t buf[FS_BLOCK_SIZE] = {0};
+        FS_ReadBlock(block, buf);
+        FileHeader fh;
+        memcpy(&fh, buf, sizeof(FileHeader));
+        size_t copy = fh.size > bytes ? bytes : fh.size;
+        memcpy(buffer, fh.data, copy);
+
+        buffer += copy;
+        bytes -= copy;
+        block = fh.next_block;
+    }
+}
+
+void FS_FileRead(Directory* parent, const char* name, void* buffer, uint32_t bytes) {
+    FileEntry fe = FS_FindFile(parent, name);
+    if (fe.type == 0) {
+        printf("FS: not a file\n");
+        return;
+    }
+    FS_FileBlockRead(fe.first_block, (uint8_t*)buffer, bytes);
 }
