@@ -11,4 +11,6 @@ void i686_Page_Initialize();
 void i686_Page_Map(uint32_t virtual_addr, uint32_t physical_addr, uint32_t flags);
 void i686_Page_MMIO(uint32_t virtual_addr, uint32_t physical_addr, uint32_t flags);
 
-void __attribute__((cdecl)) i686_Page_Enable(uint32_t pd_addr);
+void __attribute__((cdecl)) i686_Page_Directory_Load(uint32_t pd_addr);
+void __attribute__((cdecl)) i686_Page_Enable();
+void i686_Flush_Tlb(uint32_t addr);

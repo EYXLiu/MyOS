@@ -8,7 +8,7 @@ typedef struct {
     uint8_t func;
     uint16_t vendor_id;
     uint16_t device_id;
-    uint16_t base;
+    uint64_t base;
 } PCIDevice;
 
 PCIDevice i686_PCI_Initialize(uint16_t vendor_id);

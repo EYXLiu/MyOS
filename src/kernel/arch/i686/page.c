@@ -1,19 +1,24 @@
 #include "page.h"
 #include <stdio.h>
 #include <arch/i686/pmm.h>
+#include <debug.h>
 
 uint32_t g_PageDirectory[1024] __attribute__((aligned(4096)));
 uint32_t g_FirstPageTable[1024] __attribute__((aligned(4096)));
 
 void i686_Page_Initialize() {
     for (int i = 0; i < 1024; i++)
+        g_PageDirectory[i] = PAGE_RW;
+
+    for (int i = 0; i < 1024; i++)
         g_FirstPageTable[i] = (i * 0x1000) | PAGE_PRESENT | PAGE_RW;
     
     g_PageDirectory[0] = ((uint32_t)g_FirstPageTable) | PAGE_PRESENT | PAGE_RW;
-    for (int i = 1; i < 1024; i++)
-        g_PageDirectory[i] = 0;
     
-    i686_Page_Enable((uint32_t)g_PageDirectory);
+    i686_Page_Directory_Load((uint32_t)g_PageDirectory);
+    i686_Page_Enable();
+
+    log_debug("PAGE", "paging enabled");
 }
 
 void i686_Page_Map(uint32_t virtual_addr, uint32_t physical_addr, uint32_t flags) {
@@ -34,8 +39,13 @@ void i686_Page_Map(uint32_t virtual_addr, uint32_t physical_addr, uint32_t flags
         }
     }
     page_table[pt_idx] = (physical_addr & 0xFFFFF000) | (flags & 0xFFF) | PAGE_PRESENT;
+    i686_Flush_Tlb(virtual_addr);
 }
 
 void i686_Page_MMIO(uint32_t virtual_addr, uint32_t physical_addr, uint32_t flags) {
     i686_Page_Map(virtual_addr, physical_addr, flags | PAGE_PCD | PAGE_PWT);
+}
+
+void i686_Flush_Tlb(uint32_t addr) {
+    __asm__ volatile("invlpg (%0)" ::"r" (addr) : "memory");
 }

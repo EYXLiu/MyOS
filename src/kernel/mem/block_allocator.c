@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <debug.h>
+#include <arch/i686/page.h>
 
 struct BlockHeader* g_BlockHead;
 
@@ -59,11 +60,11 @@ void KFree(void* ptr) {
     if (block->next && block->next->free) {
         struct BlockHeader* prev = block->prev;
         block->size += sizeof(struct BlockHeader) + block->next->size;
-        block->next = block->next->next;
+        if (block->next) block->next = block->next->next;
         if (block->next) block->next->prev = block;
         block = prev;
     }
-    if (block->prev && block->prev->free) {
+    if (block && block->prev && block->prev->free) {
         block->prev->size += sizeof(struct BlockHeader) + block->size;
         block->prev->next = block->next;
         if (block->next) block->next->prev = block->prev;

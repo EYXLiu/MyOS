@@ -41,7 +41,6 @@ void VGA_clrscr() {
     g_ScreenX = 0;
     g_ScreenY = 0;
     VGA_setcursor(g_ScreenX, g_ScreenY);
-    log_debug("VGA", "%x", g_ScreenBuffer);
 }
 
 void VGA_setcursor(int x, int y) {

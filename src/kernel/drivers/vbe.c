@@ -25,19 +25,26 @@ void VBE_Initialize(VbeInfoBlock* vbeInfo, VbeModeInfo* vbeMode) {
     uint32_t fb_size = pitch * h;
 
     uint32_t fb_start = fb & 0xFFFFF000;
-    uint32_t fb_end = (fb + fb_size + 0xFFF) & ~0xFFF;
+    uint32_t fb_end = (fb + fb_size + 0xFFF) & ~0xFFF;  
+    uint32_t num_pages = (fb_end - fb_start) / 0x1000;
 
-    log_debug("VBE", "framebuffer initialized to %x", modeInfo->framebuffer);
+    for (uint32_t i = 0; i < num_pages; i++) {
+        i686_Page_MMIO(
+            FB_VIRT + i * 0x1000,
+            fb_start + i * 0x1000,
+            PAGE_PRESENT | PAGE_RW
+        );
+    }
+
+    log_debug("VBE", "framebuffer initialized to %x, (phys %x)", FB_VIRT, modeInfo->framebuffer);
 }
 
 void VBE_SetBG(Directory* parent, const char* s) {
-    uint32_t* fb = (uint32_t*)modeInfo->framebuffer;
+    uint32_t* fb = (uint32_t*)FB_VIRT;
     uint16_t w = modeInfo->width;
     uint16_t h = modeInfo->height;
     uint16_t pitch = modeInfo->pitch;
-    log_debug("VBE", "%u", pitch * h);
     FS_FileRead(parent, s, fb, pitch * h);
-    log_debug("VBE", "%x", fb + (pitch * h));
 }
 
 void VBE_PutP(uint32_t x, uint32_t y, uint32_t color) {

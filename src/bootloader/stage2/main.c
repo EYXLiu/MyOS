@@ -37,6 +37,8 @@ void __attribute__((cdecl)) cstart(uint16_t bootDrive) {
     g_BootParams.BootDevice = bootDrive;
     Memory_Detect(&g_BootParams.Memory);
 
+    //goto end;
+
     // load kernel
     FAT_File* k_fd = FAT_Open(&disk, "/kernel.bin");
     uint32_t readKernel;

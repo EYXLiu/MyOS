@@ -23,15 +23,15 @@
 #define ROK 0x01
 #define TOK 0x04
 
-PCIDevice g_Dev;
+PCIDevice g_Rtl8139;
 uint8_t* rx_buffer;
 uint32_t rx_buffer_phys;
 static uint32_t rx_offset = 0;
 uint8_t mac[6];
 
 void rtl8139_handler(uint8_t isr, uint64_t error, uint64_t irq) {
-    uint16_t status = i686_inw(g_Dev.base + RTL8139_ISR);
-    i686_outw(g_Dev.base + RTL8139_ISR, 0x35);
+    uint16_t status = i686_inw(g_Rtl8139.base + RTL8139_ISR);
+    i686_outw(g_Rtl8139.base + RTL8139_ISR, 0x35);
     if (status & TOK) {
 
     }
@@ -41,38 +41,38 @@ void rtl8139_handler(uint8_t isr, uint64_t error, uint64_t irq) {
 }
 
 void RTL8139_PowerOn() {
-    i686_outb(g_Dev.base + RTL8139_CONFIG1, 0x0);
+    i686_outb(g_Rtl8139.base + RTL8139_CONFIG1, 0x0);
 }
 
 void RTL8139_InitRX() {
-    i686_outl(g_Dev.base + RTL8139_REG_RXBUF, (uintptr_t)rx_buffer);
+    i686_outl(g_Rtl8139.base + RTL8139_REG_RXBUF, (uintptr_t)rx_buffer);
 }
 
 void RTL8139_SetImrIsr() {
-    i686_outw(g_Dev.base + RTL8139_IMR, 0x0005);
+    i686_outw(g_Rtl8139.base + RTL8139_IMR, 0x0005);
 }
 
 void RTL8139_ConfigRCR() {
-    i686_outl(g_Dev.base + RTL8139_RCR, 0xF | (1 << 7));
+    i686_outl(g_Rtl8139.base + RTL8139_RCR, 0xF | (1 << 7));
 }
 
 void RTL8139_InitRXTX() {
-    i686_outb(g_Dev.base + RTL8139_RX_CMD, 0x0C);
+    i686_outb(g_Rtl8139.base + RTL8139_RX_CMD, 0x0C);
 }
 
 void RTL8139_ReadMac() {
     for (int i = 0; i < 6; i++) {
-        mac[i] = i686_inb(g_Dev.base + RTL8139_MAC + i);
+        mac[i] = i686_inb(g_Rtl8139.base + RTL8139_MAC + i);
     }
 }
 
 void RTL8139_Initialize() {
-    g_Dev = i686_PCI_Initialize(0x10EC);
-    if (g_Dev.vendor_id == 0xFFFF) {
+    g_Rtl8139 = i686_PCI_Initialize(0x10EC);
+    if (g_Rtl8139.vendor_id == 0xFFFF) {
         log_err("RTL8139", "unable to find rtl8139");
         return;
     }
-    log_debug("RTL8139", "I/O base: 0x%x", g_Dev.base);
+    log_debug("RTL8139", "I/O base: 0x%x", g_Rtl8139.base);
 
     RTL8139_PowerOn();
     RTL8139_Reset();
@@ -85,6 +85,6 @@ void RTL8139_Initialize() {
 }
 
 void RTL8139_Reset() {
-    i686_outb(g_Dev.base + RTL8139_CMD, 0x10);
-    while (i686_inb(g_Dev.base + RTL8139_CMD) & 0x10);
+    i686_outb(g_Rtl8139.base + RTL8139_CMD, 0x10);
+    while (i686_inb(g_Rtl8139.base + RTL8139_CMD) & 0x10);
 }

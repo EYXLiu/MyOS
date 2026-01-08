@@ -15,12 +15,27 @@ PCIDevice i686_PCI_Initialize(uint16_t vendor_id) {
                 if (vendor == 0xFFFF) continue;
                     
                 if (vendor == vendor_id) {
+                    uint32_t cmd = i686_PCI_Read(bus, device, func, 0x04);
+                    cmd |= (1 << 1);
+                    i686_PCI_Write(bus, device, func, 0x04, cmd);
+                    cmd = i686_PCI_Read(bus, device, func, 0x04);
+
+                    uint32_t bar0i = i686_PCI_Read(bus, device, func, 0x10);
+                    uint32_t bar1i = i686_PCI_Read(bus, device, func, 0x14);
+                    log_debug("PCI", "bar0 = 0x%x bar1 = 0x%x", bar0i, bar1i);
+
                     uint32_t bar0 = i686_PCI_Read(bus, device, func, 0x10);
-                    uint16_t base;
+                    uint64_t base;
+
                     if (bar0 & 1) {
-                        base = bar0 & 0xFFFFFFFC;
+                        base = bar0 & ~0x3;
                     } else {
-                        base = bar0 & 0xFFFFFFF0;
+                        if ((bar0 & 0x6) == 0x4) {
+                            uint32_t bar1 = i686_PCI_Read(bus, device, func, 0x14);
+                            base = ((uint64_t)bar1 << 32) | (bar0 & ~0xF);
+                        } else {
+                            base = bar0 & ~0xF;
+                        }
                     }
                     dev.bus = bus;
                     dev.device = device;

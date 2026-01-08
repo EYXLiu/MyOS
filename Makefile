@@ -91,7 +91,9 @@ run: floppy
 		-debugcon stdio \
 		-fda $(BUILD_DIR)/floppy.img \
 		-hda $(BUILD_DIR)/hdd.img \
-		-nic user,model=rtl8139,hostfwd=tcp::1234-:1234
+		-nic user,model=rtl8139,hostfwd=tcp::1234-:1234 \
+		-device virtio-gpu \
+		-display cocoa
 
 #
 # clean

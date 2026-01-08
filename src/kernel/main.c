@@ -15,6 +15,8 @@
 #include <arch/i686/pmm.h>
 #include <drivers/rtl8139.h>
 #include <drivers/vbe.h>
+#include <drivers/gpu.h>
+#include <kstring/string.h>
 
 extern uint8_t __bss_start;
 extern uint8_t __end;
@@ -22,28 +24,26 @@ extern uint8_t __end;
 void __attribute__((section(".entry"))) kstart(BootParams* bootParams) {
     memset(&__bss_start, 0, (&__end) - (&__bss_start));
 
+    log_debug("K", "Start 0x%x, end 0x%x", &__bss_start, &__end);
+
     HAL_Initialize();
 
-    BlockMem_Initialize(&__end);
-/*
+    //BlockMem_Initialize(&__end);
+
+    i686_PMM_Initialize((uintptr_t)&__end, &bootParams->Memory);
+
     i686_Page_Initialize();
-
-    i686_PMM_Initialize((uintptr_t)&__end + HEAP_SIZE);
-
-    RTL8139_Initialize();
-*/
 
     uint32_t root = FS_Load();
     Directory dir;
     FS_SetDirectory(&dir, root);
 
     VBE_Initialize(bootParams->vbeInfo, bootParams->vbeMode);
-    VBE_SetBG(&dir, "bgr2.bin");
+    VBE_SetBG(&dir, "bgr.bin");
 
-    VBE_PutP(0, 0, 0xFF000000);
-    VBE_PutP(1, 0, 0xFF000000);
-    VBE_PutP(0, 1, 0xFF000000);
-    VBE_PutP(1, 1, 0xFF000000);
+goto end;
+    GPU_Initialize();
+    RTL8139_Initialize();
 
     Shell_Initialize(&dir);
     Shell_Run();
