@@ -9,3 +9,5 @@
 void i686_PMM_Initialize(uint32_t bitmap_addr, MemoryInfo* memInfo);
 uint32_t i686_PMM_AllocPage();
 void i686_PMM_FreePage(uint32_t phys_addr);
+
+void i686_PMM_AllocBitmap();

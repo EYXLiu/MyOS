@@ -4,3 +4,6 @@
 
 void i686_IDE_Read(uint32_t lba, uint8_t* buffer);
 void i686_IDE_Write(uint32_t lba, const uint8_t* buffer);
+
+void i686_IDE_ReadPage(uint32_t lba, uint8_t* buffer);
+void i686_IDE_WritePage(uint32_t lba, const uint8_t* buffer);

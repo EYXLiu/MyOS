@@ -24,6 +24,11 @@ extern uint8_t __end;
 void __attribute__((section(".entry"))) kstart(BootParams* bootParams) {
     memset(&__bss_start, 0, (&__end) - (&__bss_start));
 
+    for (int i = 0; i < bootParams->Memory.RegionCount; i++) {
+        log_debug("K", "Type %x, length %llx, begin %llx", bootParams->Memory.Regions[i].Type, bootParams->Memory.Regions[i].Length, bootParams->Memory.Regions[i].Begin);
+    }
+
+
     log_debug("K", "Start 0x%x, end 0x%x", &__bss_start, &__end);
 
     HAL_Initialize();

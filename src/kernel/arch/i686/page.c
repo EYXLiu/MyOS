@@ -18,6 +18,8 @@ void i686_Page_Initialize() {
     i686_Page_Directory_Load((uint32_t)g_PageDirectory);
     i686_Page_Enable();
 
+    i686_PMM_AllocBitmap();
+
     log_debug("PAGE", "paging enabled");
 }
 

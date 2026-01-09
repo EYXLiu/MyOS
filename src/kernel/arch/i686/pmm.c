@@ -5,6 +5,12 @@
 uint8_t* bitmap;
 uint32_t total_pages;
 
+uintptr_t bitmap_start;
+size_t bitmap_size;
+uintptr_t bitmap_end;
+
+#define PMM_BITMAP_VIRT 0xC0100000
+
 void i686_PMM_SetBit(uint32_t bit) {
     bitmap[bit / 8] |= (1 << (bit % 8));
 }
@@ -19,22 +25,23 @@ uint8_t i686_PMM_TestBit(uint32_t bit) {
 
 void i686_PMM_Initialize(uint32_t bitmap_addr, MemoryInfo* memInfo) {
     // bitmap needs to be page aligned
-    uintptr_t bitmap_start = (bitmap_addr + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
+    bitmap_start = (bitmap_addr + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
 
     // find number of pages
-    total_pages = 0;
+    uintptr_t max_addr = 0;
     for (int i = 0; i < memInfo->RegionCount; i++) {
         MemoryRegion* memRegion = &memInfo->Regions[i];
 
         uintptr_t start = (memRegion->Begin + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
         uintptr_t end = start + memRegion->Length;
 
-        total_pages += (end - start) / PAGE_SIZE;
+        if (end > max_addr) max_addr = end;
     }
+    total_pages = (max_addr + PAGE_SIZE - 1) / PAGE_SIZE;
 
-    size_t bitmap_size = (total_pages + 7) / 8;
+    bitmap_size = (total_pages + 7) / 8;
     bitmap = (uint8_t*)bitmap_start;
-    uintptr_t bitmap_end = bitmap_start + bitmap_size;
+    bitmap_end = (bitmap_start + bitmap_size + PAGE_SIZE - 1) & ~(PAGE_SIZE - 1);
 
     for (size_t i = 0; i < total_pages; i++)
         i686_PMM_SetBit(i);
@@ -53,6 +60,17 @@ void i686_PMM_Initialize(uint32_t bitmap_addr, MemoryInfo* memInfo) {
     }
 
     log_debug("PMM", "bitmap allocated at 0x%x-0x%x, managing %u pages", bitmap_start, bitmap_end, total_pages);
+}
+
+void i686_PMM_AllocBitmap() {
+    uintptr_t virt_addr = PMM_BITMAP_VIRT;
+
+    for (uintptr_t phys = bitmap_start & ~(PAGE_SIZE - 1); phys < bitmap_end; phys += PAGE_SIZE) {
+        i686_Page_Map(virt_addr, phys, PAGE_RW);
+        virt_addr += PAGE_SIZE;
+    }
+
+    bitmap = (uint8_t*)PMM_BITMAP_VIRT;
 }
 
 uint32_t i686_PMM_AllocPage() {

@@ -71,3 +71,46 @@ void i686_IDE_Write(uint32_t lba, const uint8_t* buffer) {
 
     i686_IDE_WaitBSY();
 }
+
+void i686_IDE_ReadPage(uint32_t lba, uint8_t* buffer) {
+    i686_IDE_WaitBSY();
+
+    i686_outb(IDE_SECTOR_CNT, 8); 
+    i686_outb(IDE_LBA_LOW, (uint8_t)(lba & 0xFF));
+    i686_outb(IDE_LBA_MID, (uint8_t)((lba >> 8) & 0xFF));
+    i686_outb(IDE_LBA_HI, (uint8_t)((lba >> 16) & 0xFF));
+    i686_outb(IDE_DRIVE, 0xE0 | ((lba >> 24) & 0x0F)); 
+    i686_Delay_400ns();
+
+    i686_outb(IDE_COMMAND, IDE_CMD_READ);
+
+    i686_IDE_WaitDRQ();
+
+    // read 1 block (512 bytes) from data port
+    for (int i = 0; i < 4096 / 2; i++) {
+        uint16_t word = i686_inw(IDE_DATA);
+        buffer[i * 2] = word & 0xFF;
+        buffer[i * 2 + 1] = (word >> 8) & 0xFF;
+    }
+}
+
+void i686_IDE_WritePage(uint32_t lba, const uint8_t* buffer) {
+    i686_IDE_WaitBSY();
+
+    i686_outb(IDE_SECTOR_CNT, 8);
+    i686_outb(IDE_LBA_LOW, (uint8_t)(lba & 0xFF));
+    i686_outb(IDE_LBA_MID, (uint8_t)((lba >> 8) & 0xFF));
+    i686_outb(IDE_LBA_HI, (uint8_t)((lba >> 16) & 0xFF));
+    i686_outb(IDE_DRIVE, 0xE0 | ((lba >> 24) & 0x0F));
+    i686_Delay_400ns();
+
+    i686_IDE_WaitDRQ();
+
+    // write 1 block (512 bytes) from data port
+    for (int i = 0; i < 4096 / 2; i++) {
+        uint16_t word = buffer[i * 2] | (buffer[i * 2 + 1] << 8);
+        i686_outw(IDE_DATA, word);
+    }
+
+    i686_IDE_WaitBSY();
+}
