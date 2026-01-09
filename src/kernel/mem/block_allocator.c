@@ -3,15 +3,28 @@
 #include <stdio.h>
 #include <debug.h>
 #include <arch/i686/page.h>
+#include <arch/i686/pmm.h>
 
 struct BlockHeader* g_BlockHead;
 
 uintptr_t g_HeapBegin;
 uintptr_t g_HeapEnd;
 
-void BlockMem_Initialize(uint8_t* __end) {
-    g_HeapBegin = (uintptr_t)__end;
+#define MEM_VIRT 0xC0400000
+
+void BlockMem_Initialize() {
+    g_HeapBegin = (uintptr_t)MEM_VIRT;
     g_HeapEnd = g_HeapBegin + HEAP_SIZE;
+
+    uintptr_t addr;
+    for (addr = g_HeapBegin; addr < g_HeapEnd; addr += PAGE_SIZE) {
+        uint32_t phys = i686_PMM_AllocPage();
+        if (phys == 0xFFFFFFFF) {
+            log_debug("HEAP", "out of physical memory");
+            return;
+        }
+        i686_Page_Map(addr, phys, PAGE_PRESENT | PAGE_RW);
+    }
 
     struct BlockHeader* initial = (struct BlockHeader*)g_HeapBegin;
     initial->size = HEAP_SIZE - sizeof(struct BlockHeader);

@@ -51,7 +51,7 @@ void VBE_PutP(uint32_t x, uint32_t y, uint32_t color) {
     if (x >= modeInfo->width || y >= modeInfo->height) 
         return;
     
-    uint8_t* fb = (uint8_t*)modeInfo->framebuffer;
+    uint8_t* fb = (uint8_t*)FB_VIRT;
     uint32_t offset = y * modeInfo->pitch + x * 4;
     *(uint32_t*)(fb + offset) = color;
 }

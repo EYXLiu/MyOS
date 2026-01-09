@@ -33,18 +33,22 @@ void __attribute__((section(".entry"))) kstart(BootParams* bootParams) {
 
     HAL_Initialize();
 
-    //BlockMem_Initialize(&__end);
-
     i686_PMM_Initialize((uintptr_t)&__end, &bootParams->Memory);
 
     i686_Page_Initialize();
 
+    // initialize first because framebuffer is required memory
+    VBE_Initialize(bootParams->vbeInfo, bootParams->vbeMode);
+    
     uint32_t root = FS_Load();
     Directory dir;
     FS_SetDirectory(&dir, root);
 
-    VBE_Initialize(bootParams->vbeInfo, bootParams->vbeMode);
     VBE_SetBG(&dir, "bgr.bin");
+
+    BlockMem_Initialize();
+
+    VBE_SetBG(&dir, "bgr2.bin");
 
 goto end;
     GPU_Initialize();

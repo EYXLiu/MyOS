@@ -11,8 +11,8 @@ struct BlockHeader {
     bool free;
 };
 
-#define HEAP_SIZE (16 * 1024 * 1024) // 16mb
+#define HEAP_SIZE (4 * 1024 * 1024) // 4mb
 
-void BlockMem_Initialize(uint8_t* __end);
+void BlockMem_Initialize();
 void* KMalloc(size_t size);
 void KFree(void* ptr);

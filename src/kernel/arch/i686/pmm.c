@@ -9,7 +9,7 @@ uintptr_t bitmap_start;
 size_t bitmap_size;
 uintptr_t bitmap_end;
 
-#define PMM_BITMAP_VIRT 0xC0100000
+#define PMM_BITMAP_VIRT 0xC0800000
 
 void i686_PMM_SetBit(uint32_t bit) {
     bitmap[bit / 8] |= (1 << (bit % 8));
@@ -66,7 +66,7 @@ void i686_PMM_AllocBitmap() {
     uintptr_t virt_addr = PMM_BITMAP_VIRT;
 
     for (uintptr_t phys = bitmap_start & ~(PAGE_SIZE - 1); phys < bitmap_end; phys += PAGE_SIZE) {
-        i686_Page_Map(virt_addr, phys, PAGE_RW);
+        i686_Page_Map(virt_addr, phys, PAGE_PRESENT | PAGE_RW);
         virt_addr += PAGE_SIZE;
     }
 
