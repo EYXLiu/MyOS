@@ -16,25 +16,27 @@ PCIDevice i686_PCI_Initialize(uint16_t vendor_id) {
                     
                 if (vendor == vendor_id) {
                     uint32_t cmd = i686_PCI_Read(bus, device, func, 0x04);
-                    cmd |= (1 << 1);
+                    cmd |= (1 << 1) | (1 << 2);
                     i686_PCI_Write(bus, device, func, 0x04, cmd);
                     cmd = i686_PCI_Read(bus, device, func, 0x04);
 
-                    uint32_t bar0i = i686_PCI_Read(bus, device, func, 0x10);
-                    uint32_t bar1i = i686_PCI_Read(bus, device, func, 0x14);
-                    log_debug("PCI", "bar0 = 0x%x bar1 = 0x%x", bar0i, bar1i);
+                    uint8_t cap_ptr = i686_PCI_Read(bus, device, func, 0x34) & 0xFF;
+                    log_debug("PCI", "Capabilities pointer = 0x%x", cap_ptr);
 
-                    uint32_t bar0 = i686_PCI_Read(bus, device, func, 0x10);
                     uint64_t base;
+                    for (int i = 0; i < 6; i++) {
+                        uint32_t bar = i686_PCI_Read(bus, device, func, 0x10 + i*4);
+                        if (bar == 0) continue;
 
-                    if (bar0 & 1) {
-                        base = bar0 & ~0x3;
-                    } else {
-                        if ((bar0 & 0x6) == 0x4) {
-                            uint32_t bar1 = i686_PCI_Read(bus, device, func, 0x14);
-                            base = ((uint64_t)bar1 << 32) | (bar0 & ~0xF);
-                        } else {
-                            base = bar0 & ~0xF;
+                        if (!(bar & 1)) {
+                            if ((bar & 0x6) == 0x4) {
+                                uint32_t bar_hi = i686_PCI_Read(bus, device, func, 0x10 + (i+1)*4);
+                                base = ((uint64_t)bar_hi << 32) | (bar & ~0xF);
+                                i++;
+                            } else {
+                                base = bar & ~0xF;
+                            }
+                            break;
                         }
                     }
                     dev.bus = bus;
