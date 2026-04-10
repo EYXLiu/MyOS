@@ -12,7 +12,7 @@ Tech Stack: C, possibly C++, Assembly, Make, Qemu, GDB, Bochs, Bash
   - [x] i686 I/O
   - [x] PCI
 - **Memory**  
-  - [ ] Paging 
+  - [x] Paging (Mostly, need to bug test)  
   - [x] Memory allocation 
   - [x] Strings (in memory)
   - [ ] Garbage collector/memory scanner
